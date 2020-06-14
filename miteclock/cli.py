@@ -24,12 +24,12 @@ def _init_account():
     """Prompt user for account information and return it for config to save."""
     click.echo("Seems like you haven't set up miteclock yet. Let's do that now.")
     account_name = click.prompt(
-        "Please provide an account name. This is the first part of your mite URL."
+        "Please provide an account name. This is the first part of your mite URL"
     )
     account_key = click.prompt(
         "Please enter or paste your API key.\n"
         "You can find it in the 'My User'/'Mein Benutzer' tab in mite.\n"
-        "If necessary, check the box 'Allow API Access'/'Zugriff Aktivieren'."
+        "If necessary, check the box 'Allow API Access'/'Zugriff Aktivieren'"
     ).strip()
     echo_success("Setup complete!\n\n")
     return account_name, account_key
@@ -97,10 +97,10 @@ def _idempotent_entry_id(entries_today, entry_spec, api):
     return entry_id
 
 
-@click.group(cls=ClickAliasedGroup)
+@click.group(cls=ClickAliasedGroup, invoke_without_command=True)
 @click.pass_context
 def main(ctx):
-    """FasTerMite.
+    """miteclock
 
     Lets you start and stop the mite timer quickly from the command line.
 
@@ -109,6 +109,9 @@ def main(ctx):
     # During testing ctx.obj is constructed externally and passed in, so it's not None.
     if ctx.obj is None:
         ctx.obj = load_settings(_init_account)
+
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @main.command()

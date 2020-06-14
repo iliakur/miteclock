@@ -62,8 +62,8 @@ def load_settings(initialize_account):
     """
     key_path = CONFIG_ROOT / "apikey"
     if not CONFIG_ROOT.exists():
-        CONFIG_ROOT.mkdir(parents=True)
         account, key = initialize_account()
+        CONFIG_ROOT.mkdir(parents=True)
         with key_path.open("w") as fh:
             fh.write(key.strip())
         config = Config(account)
