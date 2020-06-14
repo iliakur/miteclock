@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "miteclock"
+version = "0.2.0"
+description = ""
+authors = ["Ilia Kurenkov <ilia.kurenkov@gmail.com>"]
+license="MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6.1"   # The patch number is important for pre-commit.
+dataclasses = {version = "^0.7", python = "3.6"}
+requests = "^2.23.0"
+click = "^7.1.1"
+click-aliases = "^1.0.1"
+toml = "^0.10.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-randomly = "^3.3.1"
+isort = "^4.3.21"
+tox = "^3.14.6"
+ipython = "^7.15.0"
+pre-commit = "^2.4.0"
+pytest-xdist = "^1.32.0"
+pytest-cov = "^2.10.0"
+
+[tool.poetry.scripts]
+# If you change this, don't forget to re-generate shell completions for it.
+m='miteclock.cli:main'
+
+[tool.isort]
+known_third_party = ["click", "click_aliases", "pytest", "requests", "toml"]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

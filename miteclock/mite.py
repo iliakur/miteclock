@@ -1,0 +1,68 @@
+"""This module knows all things mite-related."""
+from dataclasses import dataclass
+
+import requests
+
+
+def init_api(account, apikey, app):
+    """Set up session for making requests to mite api."""
+    session = requests.Session()
+    session.headers.update(
+        {
+            "User-Agent": f"{app.name}: v{app.version}",
+            "Content-Type": "application/json",
+            "X-MiteApiKey": apikey,
+        }
+    )
+    # Adding a hook to always make sure our requests succeed.
+    # Kudos: https://stackoverflow.com/a/45470227/4501212
+    session.hooks = {"response": [lambda r, *args, **kwargs: r.raise_for_status()]}
+    base_url = f"https://{account}.mite.yo.lk"
+
+    def api(method, resource_path, **requests_kwargs):
+        """Make request to mite api using HTTP method, resource path and kwargs.
+
+        Checks response for errors (will raise) and returns its json payload.
+        """
+        return getattr(session, method)(
+            f"{base_url}/{resource_path}.json", **requests_kwargs
+        ).json()
+
+    return api
+
+
+@dataclass
+class TrackedTimeEntry:
+    """Time entry for which the clock is currently running."""
+
+    id: int
+
+    @classmethod
+    def from_response(cls, resp_data):
+        return cls(resp_data["id"])
+
+
+class StopWatch:
+    """Adapter for interacting with Mite's stopwatch conveniently."""
+
+    def __init__(self, requester):
+        self._requester = requester
+
+    def tracking_time_entry(self):
+        """Check if stopwatch is running for an entry.
+
+        If yes, return that entry's ID.
+        If no, return None.
+        """
+        tracker = self._requester("get", "tracker")["tracker"]
+        if not tracker:
+            return None
+        return TrackedTimeEntry.from_response(tracker["tracking_time_entry"])
+
+    def stop(self, entry_id):
+        """Stop the clock for entry given its ID."""
+        return self._requester("delete", f"tracker/{entry_id}")
+
+    def start(self, entry_id):
+        """Start counting time for an entry specified by its ID."""
+        return self._requester("patch", f"tracker/{entry_id}")
