@@ -1,9 +1,19 @@
 [tool.poetry]
 name = "miteclock"
 version = "0.2.0"
-description = ""
+description = "Clock in and out of mite.yo.lk quickly."
 authors = ["Ilia Kurenkov <ilia.kurenkov@gmail.com>"]
 license="MIT"
+readme = "README.md"
+
+keywords = ['time-tracking', 'productivity']
+classifiers = [
+            "Development Status :: 4 - Beta",
+            "Intended Audience :: Information Technology",
+            "Intended Audience :: System Administrators",
+            "Intended Audience :: Developers",
+            "Operating System :: Unix"
+]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"   # The patch number is important for pre-commit.
