@@ -6,6 +6,9 @@ authors = ["Ilia Kurenkov <ilia.kurenkov@gmail.com>"]
 license="MIT"
 readme = "README.md"
 
+homepage = "https://github.com/iliakur/miteclock"
+repository = "https://github.com/iliakur/miteclock"
+
 keywords = ['time-tracking', 'productivity']
 classifiers = [
             "Development Status :: 4 - Beta",
