@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miteclock"
-version = "0.2.0"
+version = "0.2.2"
 description = "Clock in and out of mite.yo.lk quickly."
 authors = ["Ilia Kurenkov <ilia.kurenkov@gmail.com>"]
 license="MIT"
