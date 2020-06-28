@@ -161,7 +161,7 @@ time entries are sorted by the time they were updated last not by the time when 
 were created.
 
 You can skip this menu by passing the `-l` flag (or `--last` if you like typing) which
-automatically starts the last entry for which you had a timer running.
+automatically starts the last entry for which you had a clock running.
 
 ### Helper Commands
 

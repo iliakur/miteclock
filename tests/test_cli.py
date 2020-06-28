@@ -111,7 +111,7 @@ def application_context(mite_server, shortcuts):
         ("start", "\n", 1, 2),
         ("start", "\n", None, 2),
         # Use a key to choose entry that is not most recent.
-        # Same caveats apply about the presence of a running timer.
+        # Same caveats apply about the presence of a running clock.
         ("start", "q\na", None, 0),
         ("start", "q\na", 0, 0),
         ("start", "q\na", 1, 0),

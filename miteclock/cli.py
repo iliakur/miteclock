@@ -104,7 +104,7 @@ def _idempotent_entry_id(entries_today, entry_spec, api):
 def main(ctx):
     """miteclock
 
-    Lets you start and stop the mite timer quickly from the command line.
+    Lets you start and stop the clock in mite quickly from your terminal.
 
     Pass the `--help` flag to sub-commands to see how to use them.
     """
@@ -126,7 +126,7 @@ def stop(settings):
     stopwatch = settings.mite.stopwatch
     tracked_entry = stopwatch.tracking_time_entry()
     if tracked_entry is None:
-        click.echo("No timer running, nothing to do.")
+        click.echo("No clock is running, nothing to do.")
         sys.exit()
     stopwatch.stop(tracked_entry.id)
     echo_success("Stopping clock!")
@@ -178,7 +178,7 @@ def start(settings, last, activity):
             entry_id = _select_an_entry(settings.menu_keys, entries_today)
 
     settings.mite.stopwatch.start(entry_id)
-    echo_success("Timer started!")
+    echo_success("Clock started!")
 
 
 @main.command()
