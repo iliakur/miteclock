@@ -114,7 +114,7 @@ def main(ctx):
         click.echo(ctx.get_help())
 
 
-@main.command()
+@main.command(aliases=["pause", "break"])
 @click.pass_obj
 def stop(settings):
     """Stop current clock.
