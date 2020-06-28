@@ -235,3 +235,4 @@ def completion(settings, shell):
         if source_completion not in fh.read():
             comment = f"# Added by {settings.app.name}"
             fh.write(f"\n{comment}\n{source_completion}")
+    echo_success(f"Success! Added {shell} completion loading to {rc_file}.")
