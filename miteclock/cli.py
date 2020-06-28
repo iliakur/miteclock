@@ -24,7 +24,9 @@ def _init_account():
     """Prompt user for account information and return it for config to save."""
     click.echo("Seems like you haven't set up miteclock yet. Let's do that now.")
     account_name = click.prompt(
-        "Please provide an account name. This is the first part of your mite URL"
+        "Please provide an account name. This is the first part of your mite URL.\n"
+        "For example if your mite url is acme.mite.yo.lk, the account name is 'acme'.\n"
+        "Account name"
     )
     account_key = click.prompt(
         "Please enter or paste your API key.\n"
