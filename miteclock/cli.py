@@ -53,7 +53,7 @@ def build_menu(key_characters, time_entries):
         # Also considered presenting notes first then the key.
         # This, however, becomes tricky to align nicely.
         prompt += f"{key}\t{entry['note']}\n"
-        mapping[key] = entry["id"]
+        mapping[key] = entry
     default_key = key
     prompt += "Select an entry please"
     return prompt, default_key, mapping
@@ -65,38 +65,36 @@ def _select_an_entry(menu_keys, entries_today):
     This should be tested once configuration is easier to pass.
     """
     prompt, default_key, keyed_entries = build_menu(menu_keys, entries_today)
-    entry_id = None
-    while entry_id is None:
+    entry = None
+    while entry is None:
         entered_key = click.prompt(prompt, default=default_key)
         try:
-            entry_id = keyed_entries[entered_key]
+            entry = keyed_entries[entered_key]
         except KeyError:
             echo_error(
                 f"The key you entered ({entered_key}) is not in the menu. Asking again."
             )
-    return entry_id
+    return entry
 
 
 EntrySpec = namedtuple("EntrySpec", "project_id, service_id, note")
 
 
-def _idempotent_entry_id(entries_today, entry_spec, api):
+def _idempotent_entry(entries_today, entry_spec, api):
     """Find time entry id given entries already present and specification for an entry.
 
     If the entry specification does not match any existing entries, create a new
-    time entry and return its ID, otherwise return ID of matched existing entry.
+    time entry and return it, otherwise return matched existing entry.
     """
     entry = EntrySpec(**entry_spec)
-    by_data = {
-        EntrySpec(e["project_id"], e["service_id"], e["note"]): e["id"]
-        for e in entries_today
+    existing_specs = {
+        EntrySpec(e["project_id"], e["service_id"], e["note"]): e for e in entries_today
     }
-    entry_id = by_data.get(entry)
-    if entry_id is None:
-        entry_id = api(
-            "post", "time_entries", data=json.dumps({"time_entry": entry_spec})
-        )["time_entry"]["id"]
-    return entry_id
+    if entry in existing_specs:
+        return existing_specs[entry]
+    return api("post", "time_entries", data=json.dumps({"time_entry": entry_spec}))[
+        "time_entry"
+    ]
 
 
 @click.group(cls=ClickAliasedGroup, invoke_without_command=True)
@@ -166,18 +164,18 @@ def start(settings, last, activity):
         except ValueError as e:
             echo_error(str(e))
             sys.exit(1)
-        entry_id = _idempotent_entry_id(entries_today, spec, settings.mite.api)
+        entry = _idempotent_entry(entries_today, spec, settings.mite.api)
     else:
         if not entries_today:
             click.echo("No entries found for today, please specify an activity.")
             sys.exit()
         entries_today = sorted(entries_today, key=itemgetter("updated_at"))
         if last:
-            entry_id = entries_today[-1]["id"]
+            entry = entries_today[-1]
         else:
-            entry_id = _select_an_entry(settings.menu_keys, entries_today)
+            entry = _select_an_entry(settings.menu_keys, entries_today)
 
-    settings.mite.stopwatch.start(entry_id)
+    settings.mite.stopwatch.start(entry["id"])
     echo_success("Clock started!")
 
 

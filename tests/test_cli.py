@@ -26,7 +26,31 @@ aa	reading some code
 Select an entry please
     """.strip()
     expected_default = "aa"
-    expected_mapping = {"a": 0, "s": 1, "d": 2, "f": 3, "aa": 4}
+    expected_mapping = {
+        "a": {
+            "id": 0,
+            "project_id": 1,
+            "service_id": 6,
+            "note": "daily stand-up",
+            "updated_at": "2020-06-08T10:15:42.007128",
+        },
+        "s": {
+            "id": 1,
+            "project_id": 2,
+            "service_id": 4,
+            "note": "juggling",
+            "updated_at": "2020-06-08T11:05:32.007128",
+        },
+        "d": {
+            "id": 2,
+            "project_id": 3,
+            "service_id": 6,
+            "note": "catching up on email",
+            "updated_at": "2020-06-08T11:45:02.044416",
+        },
+        "f": {"id": 3, "project_id": 5, "service_id": 2, "note": "writing some code"},
+        "aa": {"id": 4, "project_id": 5, "service_id": 2, "note": "reading some code"},
+    }
 
     prompt, default, mapping = cli.build_menu(keys, time_entries)
     assert expected_prompt == prompt
