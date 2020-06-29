@@ -97,7 +97,24 @@ def _idempotent_entry(entries_today, entry_spec, api):
     ]
 
 
-@click.group(cls=ClickAliasedGroup, invoke_without_command=True)
+class AliasedAutocompletionGroup(ClickAliasedGroup):
+    """Provide shell completion support for aliases.
+
+    Made to play nice with click._bashcomplete:add_subcommand_completions.
+    """
+
+    def list_commands(self, ctx):
+        return super().list_commands(ctx) + list(self._aliases)
+
+    def get_command(self, ctx, cmd_name):
+        true_name = self.resolve_alias(cmd_name)
+        command = super().get_command(ctx, true_name)
+        if command:
+            command.name = cmd_name
+            return command
+
+
+@click.group(cls=AliasedAutocompletionGroup, invoke_without_command=True)
 @click.pass_context
 def main(ctx):
     """miteclock
