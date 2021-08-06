@@ -133,7 +133,7 @@ kickoff = ["c", "kickoff meeting for project"]
 &#x2026; and can be used with all your projects, for example:
 
 ```sh
-m start n kickoff  # Tracks kickoff meeting for CHAZ 2020
+m start h kickoff  # Tracks kickoff meeting for CHAZ 2020
 m start o kickoff  # Tracks kickoff meeting for OCP: ED-209
 ```
 
