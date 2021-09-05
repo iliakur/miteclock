@@ -611,6 +611,17 @@ docs = ["pygments-github-lexers (>=0.0.5)", "sphinx (>=2.0.0)", "sphinxcontrib-a
 testing = ["flaky (>=3.4.0)", "freezegun (>=0.3.11)", "psutil (>=5.6.1)", "pytest (>=4.0.0)", "pytest-cov (>=2.5.1)", "pytest-mock (>=1.10.0)", "pytest-randomly (>=1.0.0)", "pytest-xdist (>=1.22.2)", "pathlib2 (>=2.3.3)"]
 
 [[package]]
+name = "tox-pyenv"
+version = "1.1.0"
+description = "tox plugin that makes tox use `pyenv which` to find python executables"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+tox = ">=2.0"
+
+[[package]]
 name = "traitlets"
 version = "5.1.0"
 description = "Traitlets Python configuration system"
@@ -685,7 +696,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "8a1c6a6c0e9d4bfbf82b5d7a3ce96fc348e04a19739e7511fc861c2f87b1087c"
+content-hash = "0493be33830436f91c58cd5b73e8dafb824b64d1b2859bf386969ee392b2e7d7"
 
 [metadata.files]
 appnope = [
@@ -968,6 +979,10 @@ toml = [
 tox = [
     {file = "tox-3.24.3-py2.py3-none-any.whl", hash = "sha256:9fbf8e2ab758b2a5e7cb2c72945e4728089934853076f67ef18d7575c8ab6b88"},
     {file = "tox-3.24.3.tar.gz", hash = "sha256:c6c4e77705ada004283610fd6d9ba4f77bc85d235447f875df9f0ba1bc23b634"},
+]
+tox-pyenv = [
+    {file = "tox-pyenv-1.1.0.tar.gz", hash = "sha256:916c2213577aec0b3b5452c5bfb32fd077f3a3196f50a81ad57d7ef3fc2599e4"},
+    {file = "tox_pyenv-1.1.0-py2.py3-none-any.whl", hash = "sha256:e470c18af115fe52eeff95e7e3cdd0793613eca19709966fc2724b79d55246cb"},
 ]
 traitlets = [
     {file = "traitlets-5.1.0-py3-none-any.whl", hash = "sha256:03f172516916220b58c9f19d7f854734136dd9528103d04e9bf139a92c9f54c4"},
