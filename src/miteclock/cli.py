@@ -12,7 +12,7 @@ from operator import itemgetter
 
 import click
 from click_aliases import ClickAliasedGroup
-
+from miteclock import __version__
 from miteclock.activities import to_time_entry_spec
 from miteclock.config import load_settings
 
@@ -115,14 +115,18 @@ class AliasedAutocompletionGroup(ClickAliasedGroup):
 
 
 @click.group(cls=AliasedAutocompletionGroup, invoke_without_command=True)
+@click.option("--version", is_flag=True, help="Show miteclock's version.")
 @click.pass_context
-def main(ctx):
+def main(ctx, version):
     """miteclock
 
     Lets you start and stop the clock in mite quickly from your terminal.
 
     Pass the `--help` flag to sub-commands to see how to use them.
     """
+    if version:
+        click.echo(f"miteclock {__version__}")
+        sys.exit(0)
     # During testing ctx.obj is constructed externally and passed in, so it's not None.
     if ctx.obj is None:
         ctx.obj = load_settings(_init_account)

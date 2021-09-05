@@ -4,8 +4,7 @@ from functools import partial
 
 import pytest
 from click.testing import CliRunner
-
-from miteclock import cli
+from miteclock import __version__, cli
 from miteclock.config import MiteSettings, Settings
 from miteclock.mite import StopWatch, TrackedTimeEntry
 
@@ -115,6 +114,24 @@ def application_context(mite_server, shortcuts):
         ),
         mite_server,
     )
+
+
+def test_version():
+    """`--version` prints application version and exits with code 0."""
+    result = CliRunner().invoke(cli.main, "--version")
+    assert result.exit_code == 0
+    assert f"miteclock {__version__}" in result.output
+
+
+def test_help_message():
+    """Invoking without any args and with `--help` should show help message."""
+    no_args_passed = CliRunner().invoke(cli.main)
+    assert no_args_passed.exit_code == 0
+
+    help_flag_passed = CliRunner().invoke(cli.main, "--help")
+    assert help_flag_passed.exit_code == 0
+
+    assert no_args_passed.output == help_flag_passed.output
 
 
 @pytest.mark.parametrize(
