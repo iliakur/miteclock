@@ -20,22 +20,22 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-requests = "^2.23.0"
-click = "^7.1.1"
-click-aliases = "^1.0.1"
-toml = "^0.10.0"
-backoff = "^1.11.1"
+requests = ">=2.23.0"
+click = ">=7.1.1"
+click-aliases = ">=1.0.1"
+toml = ">=0.10.0"
+backoff = ">=1.11.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "*"
-pytest-randomly = "^3.3.1"
-isort = "^4.3.21"
-tox = "^3.14.6"
-ipython = "^7.15.0"
-pre-commit = "^2.4.0"
-pytest-xdist = "^1.32.0"
-pytest-cov = "^2.10.0"
-mutmut = "^2.1.0"
+pytest = ">=6.2"
+pytest-randomly = ">=3.3.1"
+pytest-xdist = ">=1.32.0"
+pytest-cov = ">=2.10.0"
+tox = ">=3.14.6"
+pre-commit = ">=2.4.0"
+isort = "*"
+ipython = "*"
+mutmut = "*"
 
 [tool.poetry.scripts]
 # If you change this, don't forget to re-generate shell completions for it.
