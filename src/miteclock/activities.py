@@ -45,7 +45,7 @@ def find_unique(entries, entry_type, pattern):
         raise ValueError(f"'{pattern.pattern}' did not match any {entry_type}.\n")
     if len(matches) > 1:
         raise ValueError(
-            f"'{pattern.pattern}' matched the followingmultiple {entry_type}:\n"
+            f"'{pattern.pattern}' matched the following multiple {entry_type}:\n"
             + "\n".join(m["name"] for m in matches)
             + "\n\n"
             + "Please provide an unambiguous pattern."
