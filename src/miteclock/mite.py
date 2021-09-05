@@ -1,6 +1,7 @@
 """This module knows all things mite-related."""
 from dataclasses import dataclass
 
+import backoff
 import requests
 
 
@@ -19,13 +20,21 @@ def init_api(account, apikey, app):
     session.hooks = {"response": [lambda r, *args, **kwargs: r.raise_for_status()]}
     base_url = f"https://{account}.mite.yo.lk"
 
+    @backoff.on_exception(
+        backoff.expo,
+        (requests.exceptions.Timeout, requests.exceptions.ConnectionError),
+        max_time=60,
+    )
     def api(method, resource_path, **requests_kwargs):
         """Make request to mite api using HTTP method, resource path and kwargs.
 
         Checks response for errors (will raise) and returns its json payload.
         """
-        return getattr(session, method)(
-            f"{base_url}/{resource_path}.json", **requests_kwargs
+        return session.request(
+            method,
+            f"{base_url}/{resource_path}.json",
+            timeout=10,
+            **requests_kwargs,
         ).json()
 
     return api

@@ -24,6 +24,7 @@ requests = "^2.23.0"
 click = "^7.1.1"
 click-aliases = "^1.0.1"
 toml = "^0.10.0"
+backoff = "^1.11.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -41,7 +42,7 @@ mutmut = "^2.1.0"
 m='miteclock.cli:main'
 
 [tool.isort]
-known_third_party = ["click", "click_aliases", "miteclock", "pytest", "requests", "toml"]
+known_third_party = ["backoff", "click", "click_aliases", "miteclock", "pytest", "requests", "toml"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

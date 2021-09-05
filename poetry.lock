@@ -37,6 +37,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "backoff"
+version = "1.11.1"
+description = "Function decoration for backoff and retry"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "backports.entry-points-selectable"
 version = "1.1.0"
 description = "Compatibility shim providing selectable entry points for older implementations"
@@ -672,8 +680,8 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.7"   # The patch number is important for pre-commit.
-content-hash = "566326665e27ab90daf90e2f0344e67a94fc1fc4e827f87cc282e1419e055b9d"
+python-versions = "^3.7"
+content-hash = "cd2422d8f416ea0032ba1acc9c1b26050697f6cb96cb079e82b71f1cc3d7f0a3"
 
 [metadata.files]
 appnope = [
@@ -691,6 +699,10 @@ attrs = [
 backcall = [
     {file = "backcall-0.2.0-py2.py3-none-any.whl", hash = "sha256:fbbce6a29f263178a1f7915c1940bde0ec2b2a967566fe1c65c1dfb7422bd255"},
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
+]
+backoff = [
+    {file = "backoff-1.11.1-py2.py3-none-any.whl", hash = "sha256:61928f8fa48d52e4faa81875eecf308eccfb1016b018bb6bd21e05b5d90a96c5"},
+    {file = "backoff-1.11.1.tar.gz", hash = "sha256:ccb962a2378418c667b3c979b504fdeb7d9e0d29c0579e3b13b86467177728cb"},
 ]
 "backports.entry-points-selectable" = [
     {file = "backports.entry_points_selectable-1.1.0-py2.py3-none-any.whl", hash = "sha256:a6d9a871cde5e15b4c4a53e3d43ba890cc6861ec1332c9c2428c92f977192acc"},
