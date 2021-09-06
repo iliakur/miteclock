@@ -12,6 +12,7 @@ from operator import itemgetter
 
 import click
 from click_aliases import ClickAliasedGroup
+
 from miteclock import __version__
 from miteclock.activities import to_time_entry_spec
 from miteclock.config import load_settings
