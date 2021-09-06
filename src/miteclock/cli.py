@@ -5,13 +5,15 @@ the terminal and the user input.
 """
 import json
 import sys
-from collections import namedtuple
+from dataclasses import asdict
 from functools import partial
 from itertools import chain, combinations
 from operator import itemgetter
 
 import click
 from click_aliases import ClickAliasedGroup
+from pydantic import constr
+from pydantic.dataclasses import dataclass
 
 from miteclock import __version__
 from miteclock.activities import to_time_entry_spec
@@ -78,7 +80,11 @@ def _select_an_entry(menu_keys, entries_today):
     return entry
 
 
-EntrySpec = namedtuple("EntrySpec", "project_id, service_id, note")
+@dataclass(frozen=True, eq=True)
+class EntrySpec:
+    project_id: int
+    service_id: int
+    note: constr(strip_whitespace=True)
 
 
 def _idempotent_entry(entries_today, entry_spec, api):
@@ -93,7 +99,7 @@ def _idempotent_entry(entries_today, entry_spec, api):
     }
     if entry in existing_specs:
         return existing_specs[entry]
-    return api("post", "time_entries", data=json.dumps({"time_entry": entry_spec}))[
+    return api("post", "time_entries", data=json.dumps({"time_entry": asdict(entry)}))[
         "time_entry"
     ]
 

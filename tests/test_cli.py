@@ -228,6 +228,33 @@ def test_start_new_activity(already_tracking, application_context):
     assert new_entry in mite_server["time_entries"]
 
 
+def test_start_trim_whitespace_from_note(application_context):
+    """When starting new activity, make sure to trim whitespace from note."""
+    settings, mite_server = application_context
+
+    # Start timer for entry that exists already.
+    result = CliRunner().invoke(
+        cli.main, ["start", "o", "c", " daily stand-up "], obj=settings
+    )
+    assert result.exit_code == 0
+    assert mite_server["tracker"] == {"tracker": {"tracking_time_entry": {"id": 0}}}
+
+    # Start timer for a new entry.
+    expected_new_entry = {
+        "time_entry": {
+            "id": 3,
+            "project_id": 1,
+            "service_id": 6,
+            "note": "juggling",
+        }
+    }
+    result = CliRunner().invoke(
+        cli.main, ["start", "o", "c", " juggling "], obj=settings
+    )
+    assert result.exit_code == 0
+    assert expected_new_entry in mite_server["time_entries"]
+
+
 def test_stop_idempotent(application_context):
     settings, mite_server = application_context
     assert mite_server["tracker"] == {"tracker": {}}
