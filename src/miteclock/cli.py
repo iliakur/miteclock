@@ -205,13 +205,12 @@ def resume(ctx):
 )
 @click.pass_obj
 def show(settings, what):
-    """Show a list of requested items (e.g. shortcuts or projects/services).
+    """Show list of requested items.
 
-    This is useful as a reminder of which shortcuts you have defined.
-    It can also help developing selection patterns as you can test them out
-    on the lists of projects and services.
-    Beware that your lists may get too large for you to scan them by sight.
-    In that case you can pipe the results to a file or a search program like grep.
+    This is useful to remind you which shortcuts you defined. Listing projects
+    or services can help you develop selection patterns. Beware that lists of
+    projects and services may get too large for you to scan them by sight. In
+    that case you can pipe the results to a file or a search program like grep.
     """
     if what in ["projects", "services"]:
         stuff = [item[what[:-1]]["name"] for item in settings.mite.get(what)]
