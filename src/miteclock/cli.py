@@ -245,3 +245,87 @@ def completion(settings, shell):
             comment = f"# Added by {settings.app.name}"
             fh.write(f"\n{comment}\n{source_completion}")
     echo_success(f"Success! Added {shell} completion loading to {rc_file}.")
+
+
+@dataclass
+class TimedEntry:
+    proj_name: str
+    svc_name: str
+    note: str
+    minutes: int
+    tracked: bool = False
+
+    def __str__(self):
+        return "\n".join(
+            [
+                f"Project: {self.proj_name}",
+                f"Service: {self.svc_name}",
+                f"Note: {self.note}",
+                f"Time spent: {_to_hours_and_minutes(self.minutes)}",
+            ]
+        )
+
+
+@main.command()
+@click.option(
+    "--full/--short",
+    default=False,
+    help="Pass '--full' to display all entries for the day.",
+    show_default=True,
+)
+@click.pass_obj
+def status(settings, full):
+    """Display current state of mite.
+
+    Tells you whether the clock is running or not. If it's running, shows the
+    entry that you are tracking. Can also display all entries for the day.
+    """
+    entries_today = [e["time_entry"] for e in settings.mite.get("daily")]
+
+    tracker_running = False
+    entries_for_display = []
+    total_minutes_today = 0
+    for e in sorted(entries_today, key=itemgetter("created_at")):
+        if "tracking" in e:
+            tracker_running = True
+            entry_minutes = e["tracking"]["minutes"]
+            entries_for_display.append(
+                TimedEntry(
+                    e["project_name"],
+                    e["service_name"],
+                    e["note"],
+                    entry_minutes,
+                    tracked=True,
+                )
+            )
+        else:
+            entry_minutes = e["minutes"]
+            if full:
+                entries_for_display.append(
+                    TimedEntry(
+                        e["project_name"], e["service_name"], e["note"], entry_minutes
+                    )
+                )
+        total_minutes_today += entry_minutes
+
+    if tracker_running:
+        echo_success(f"The clock is running!", bold=True)
+    else:
+        echo_error("The clock is not running.", bold=True)
+
+    if full:
+        click.echo("Entries today:")
+        for timed_e in entries_for_display:
+            color_spec = {"fg": "blue", "bg": "yellow"} if timed_e.tracked else {}
+            click.secho("\n" + str(timed_e), **color_spec)
+    elif tracker_running:
+        click.echo("Tracking the following entry.")
+        click.echo(str(entries_for_display[0]))
+    click.secho(
+        f"\nTotal time clocked in today: {_to_hours_and_minutes(total_minutes_today)}",
+        bold=True,
+    )
+
+
+def _to_hours_and_minutes(minutes):
+    return "{0}h{1}m".format(*divmod(minutes, 60))
