@@ -6,6 +6,11 @@ have to adjust their config files or read up on changes to command names and the
 options. Increments in minor version signal code changes that do not require any
 adjustments from the users.
 
+## miteclock 1.1
+
+- Change how currently tracked entry is highlighted in the list of all entries for the
+  day.
+
 ## miteclock 1.0
 
 After a year of use without any serious issues, the program is ready for version 1! This
