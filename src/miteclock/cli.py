@@ -315,8 +315,8 @@ def status(settings, full):
     if full:
         click.echo("Entries today:")
         for timed_e in entries_for_display:
-            color_spec = {"fg": "blue", "bg": "yellow"} if timed_e.tracked else {}
-            click.secho("\n" + str(timed_e), **color_spec)
+            echo_func = echo_success if timed_e.tracked else click.echo
+            echo_func("\n" + str(timed_e))
     elif tracker_running:
         click.echo("Tracking the following entry.")
         click.echo(str(entries_for_display[0]))
