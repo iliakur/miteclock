@@ -267,6 +267,7 @@ class TimedEntry:
 
 @main.command()
 @click.option(
+    "-f/-s",
     "--full/--short",
     default=False,
     help="Pass '--full' to display all entries for the day.",
