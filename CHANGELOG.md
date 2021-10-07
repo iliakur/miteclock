@@ -6,6 +6,10 @@ have to adjust their config files or read up on changes to command names and the
 options. Increments in minor version signal code changes that do not require any
 adjustments from the users.
 
+## miteclock 2.0
+
+- Added short options for `m status --full/--short`.
+
 ## miteclock 1.1
 
 - Change how currently tracked entry is highlighted in the list of all entries for the
