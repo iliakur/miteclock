@@ -39,6 +39,9 @@ pre-commit = ">=2.4.0"
 isort = "*"
 ipython = "*"
 mutmut = "*"
+black = {version = "^21.12b0", allow-prereleases = true}
+hypothesis = "^6.31.6"
+pytest-clarity = "^1.0.1"
 
 [tool.poetry.scripts]
 # If you change this, don't forget to re-generate shell completions for it.
