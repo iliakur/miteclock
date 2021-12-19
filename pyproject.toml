@@ -48,7 +48,7 @@ pytest-clarity = "^1.0.1"
 m='miteclock.cli:main'
 
 [tool.isort]
-known_third_party = ["backoff", "click", "click_aliases", "pydantic", "pytest", "requests", "toml"]
+known_third_party = ["backoff", "click", "click_aliases", "hypothesis", "pydantic", "pytest", "requests", "toml"]
 known_first_party = ["miteclock"]
 
 [build-system]

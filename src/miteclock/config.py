@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Callable
 
 import toml
+from pydantic import BaseModel, ValidationError, constr
 
 from miteclock import __name__, __version__
 from miteclock.mite import StopWatch, init_api
@@ -12,6 +13,30 @@ from miteclock.mite import StopWatch, init_api
 # Follow $XDG_CONFIG_PATH specification.
 CONFIG_ROOT = Path.home() / f".config/{__name__}"
 CONFIG_FILE = CONFIG_ROOT / "config.toml"
+
+
+class APIKey(BaseModel):
+    __root__: constr(
+        strip_whitespace=True,
+        to_lower=True,
+        regex=r"^[0-9a-f]{16}$",
+    )
+
+    def __str__(self) -> str:
+        return self.__root__
+
+
+def load_api_key(key_pth: Path, prompt: Callable[[str], str]) -> str:
+    if key_pth.exists():
+        try:
+            return str(APIKey.parse_obj(key_pth.read_text()))
+        except ValidationError:
+            key = prompt("Found key but it is invalid, please enter it again")
+            key_pth.write_text(f"{key}\n")
+            return key
+    key = prompt("Key not found, please enter it")
+    key_pth.write_text(f"{key}\n")
+    return key
 
 
 @dataclass
