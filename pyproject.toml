@@ -24,9 +24,9 @@ python = "^3.7"
 requests = ">=2.23.0"
 click = ">=7.1.1"
 click-aliases = ">=1.0.1"
-toml = ">=0.10.0"
 backoff = ">=1.11.1"
 pydantic = ">=1.8.2"
+tomlkit = "^0.7.2"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=6.2"
@@ -38,7 +38,6 @@ tox-pyenv = ">=1.1.0"
 pre-commit = ">=2.4.0"
 isort = "*"
 ipython = "*"
-mutmut = "*"
 black = {version = "^21.12b0", allow-prereleases = true}
 hypothesis = "^6.31.6"
 pytest-clarity = "^1.0.1"

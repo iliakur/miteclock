@@ -205,14 +205,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "glob2"
-version = "0.7"
-description = "Version of the glob module that can capture patterns and supports recursive wildcards"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "hypothesis"
 version = "6.31.6"
 description = "A library for property-based testing"
@@ -346,17 +338,6 @@ qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<6.0.0)"]
 
 [[package]]
-name = "junit-xml"
-version = "1.8"
-description = "Creates JUnit XML test result documents that can be read by tools such as Jenkins"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-six = "*"
-
-[[package]]
 name = "matplotlib-inline"
 version = "0.1.2"
 description = "Inline Matplotlib backend for Jupyter"
@@ -366,26 +347,6 @@ python-versions = ">=3.5"
 
 [package.dependencies]
 traitlets = "*"
-
-[[package]]
-name = "mutmut"
-version = "2.2.0"
-description = "mutation testing for Python 3"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-
-[package.dependencies]
-click = "*"
-glob2 = "*"
-junit-xml = "1.8"
-parso = "*"
-pony = "*"
-
-[package.extras]
-coverage = ["coverage"]
-patch = ["whatthepatch (==0.0.6)"]
-pytest = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "mypy-extensions"
@@ -479,14 +440,6 @@ importlib-metadata = {version = ">=0.12", markers = "python_version < \"3.8\""}
 [package.extras]
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
-
-[[package]]
-name = "pony"
-version = "0.7.14"
-description = "Pony Object-Relational Mapper"
-category = "dev"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "pprintpp"
@@ -726,7 +679,7 @@ python-versions = "*"
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
@@ -737,6 +690,14 @@ description = "A lil' TOML parser"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
+
+[[package]]
+name = "tomlkit"
+version = "0.7.2"
+description = "Style preserving TOML library"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "tox"
@@ -855,7 +816,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "e0946316fde1567e12992d5fc78ff9d9284bd0ead8edd1518e4f2480697a4bef"
+content-hash = "1d1b5a5a979a41f5eaf65a36d943af6ff9d440d2b7d27bc2273b1ed5e51f3bf3"
 
 [metadata.files]
 appnope = [
@@ -984,9 +945,6 @@ filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
     {file = "filelock-3.0.12.tar.gz", hash = "sha256:18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59"},
 ]
-glob2 = [
-    {file = "glob2-0.7.tar.gz", hash = "sha256:85c3dbd07c8aa26d63d7aacee34fa86e9a91a3873bc30bf62ec46e531f92ab8c"},
-]
 hypothesis = [
     {file = "hypothesis-6.31.6-py3-none-any.whl", hash = "sha256:fbd31da5174f3da8d062017302071967b239a1b397d0e3181a44d43346bc6def"},
     {file = "hypothesis-6.31.6.tar.gz", hash = "sha256:d54be6a80b160ad5ea4209b01a0d72e31d910510ed7142fa9907861911800771"},
@@ -1019,15 +977,9 @@ jedi = [
     {file = "jedi-0.18.0-py2.py3-none-any.whl", hash = "sha256:18456d83f65f400ab0c2d3319e48520420ef43b23a086fdc05dff34132f0fb93"},
     {file = "jedi-0.18.0.tar.gz", hash = "sha256:92550a404bad8afed881a137ec9a461fed49eca661414be45059329614ed0707"},
 ]
-junit-xml = [
-    {file = "junit-xml-1.8.tar.gz", hash = "sha256:602f1c480a19d64edb452bf7632f76b5f2cb92c1938c6e071dcda8ff9541dc21"},
-]
 matplotlib-inline = [
     {file = "matplotlib-inline-0.1.2.tar.gz", hash = "sha256:f41d5ff73c9f5385775d5c0bc13b424535c8402fe70ea8210f93e11f3683993e"},
     {file = "matplotlib_inline-0.1.2-py3-none-any.whl", hash = "sha256:5cf1176f554abb4fa98cb362aa2b55c500147e4bdbb07e3fda359143e1da0811"},
-]
-mutmut = [
-    {file = "mutmut-2.2.0.tar.gz", hash = "sha256:d78bb3324a4da736c31c9fb19c197290ededaca76c8eac2c2e40e70b59f38720"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
@@ -1064,9 +1016,6 @@ platformdirs = [
 pluggy = [
     {file = "pluggy-1.0.0-py2.py3-none-any.whl", hash = "sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3"},
     {file = "pluggy-1.0.0.tar.gz", hash = "sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159"},
-]
-pony = [
-    {file = "pony-0.7.14.tar.gz", hash = "sha256:2f01e84e79ea7a14040225cb6c079bb266e7ba147346356c266490b18c77ce82"},
 ]
 pprintpp = [
     {file = "pprintpp-0.4.0-py2.py3-none-any.whl", hash = "sha256:b6b4dcdd0c0c0d75e4d7b2f21a9e933e5b2ce62b26e1a54537f9651ae5a5c01d"},
@@ -1197,6 +1146,10 @@ toml = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
+]
+tomlkit = [
+    {file = "tomlkit-0.7.2-py2.py3-none-any.whl", hash = "sha256:173ad840fa5d2aac140528ca1933c29791b79a374a0861a80347f42ec9328117"},
+    {file = "tomlkit-0.7.2.tar.gz", hash = "sha256:d7a454f319a7e9bd2e249f239168729327e4dd2d27b17dc68be264ad1ce36754"},
 ]
 tox = [
     {file = "tox-3.24.3-py2.py3-none-any.whl", hash = "sha256:9fbf8e2ab758b2a5e7cb2c72945e4728089934853076f67ef18d7575c8ab6b88"},
