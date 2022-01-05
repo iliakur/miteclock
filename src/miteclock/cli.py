@@ -295,7 +295,7 @@ def status(settings, full):
         total_minutes_today += entry_minutes
 
     if tracker_running:
-        echo_success(f"The clock is running!", bold=True)
+        echo_success("The clock is running!", bold=True)
     else:
         echo_error("The clock is not running.", bold=True)
 

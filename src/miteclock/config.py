@@ -46,10 +46,10 @@ class ApiKey:
     def valid_key(self, attr: attrs.Attribute, value: str) -> None:
         if len(value) != 16:
             raise ValueError(
-                f"API key must be exactly 16 characters long, this one has {len(value)}."
+                f"API key must be exactly 16 characters long, this one is {len(value)}."
             )
         if not re.search(r"^[0-9a-f]+$", value):
-            raise ValueError(f"API key must only consist of hexadecimal characters.")
+            raise ValueError("API key must only consist of hexadecimal characters.")
 
     def __str__(self) -> str:
         return self._value

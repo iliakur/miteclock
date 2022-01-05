@@ -28,7 +28,7 @@ def test_api_key_valid(raw, ws):
 @given(
     raw=from_regex(re.compile(r"^[0-9a-f]{,15}$", re.IGNORECASE))  # Too short.
     | from_regex(re.compile(r"^[0-9a-f]{17,}$", re.IGNORECASE))  # Too long.
-    | from_regex(re.compile(f"[^0-9a-f]+", re.IGNORECASE))  # At least one non-hex char.
+    | from_regex(re.compile(r"[^0-9a-f]+", re.IGNORECASE))  # At least one non-hex char.
 )
 def test_api_key_invalid(raw, ws):
     """Make sure invalid inputs do fail."""
@@ -74,7 +74,7 @@ def test_load_api_key_file_missing(tmp_path, capsys):
 @pytest.mark.parametrize(
     "key, errmsg",
     [
-        ("abc", "API key must be exactly 16 characters long, this one has 3."),
+        ("abc", "API key must be exactly 16 characters long, this one is 3."),
         ("6p12e0bf974df0e9", "API key must only consist of hexadecimal characters."),
     ],
 )
@@ -162,7 +162,8 @@ def test_load_valid_config(conf_path):
         f'url="{base_url}"\n'
         'menu_keys="abc"\n\n'
         "[shortcuts]\n"
-        'a="test"\nb="test2"\nc = ["a", "test3"]\nd = {"pattern"= "QA", "match"="strict"}'
+        'a="test"\nb="test2"\nc = ["a", "test3"]'
+        '\nd = {"pattern"= "QA", "match"="strict"}'
     )
     config = load_config(conf_path)
     assert config == Config(
@@ -180,10 +181,11 @@ def test_load_valid_config(conf_path):
 def test_load_valid_legacy_config(conf_path):
     base_url = "https://abc.mite.yo.lk"
     conf_path.write_text(
-        f'account="abc"\n'
+        'account="abc"\n'
         'menu_keys="abc"\n\n'
         "[shortcuts]\n"
-        'a="test"\nb="test2"\nc = ["a", "test3"]\nd = {"pattern"= "QA", "match"="strict"}'
+        'a="test"\nb="test2"\nc = ["a", "test3"]'
+        '\nd = {"pattern"= "QA", "match"="strict"}'
     )
     config = load_config(conf_path)
     assert config == Config(
