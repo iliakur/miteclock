@@ -7,7 +7,7 @@ from click.testing import CliRunner
 
 from miteclock import __version__, cli
 from miteclock.config import MiteSettings, Settings
-from miteclock.mite import StopWatch, TrackedTimeEntry
+from miteclock.mite import StopWatch
 
 
 def test_build_menu(time_entries):
@@ -56,6 +56,13 @@ Select an entry please
     assert expected_prompt == prompt
     assert expected_default == default
     assert expected_mapping == mapping
+
+
+def test_build_menu_one_key(time_entries):
+    prompt, default, mapping = cli.build_menu(
+        key_characters="a", time_entries=time_entries
+    )
+    assert prompt == ("a\tdaily stand-up\n" "aa\tjuggling\n" "Select an entry please")
 
 
 class FakeApi:
