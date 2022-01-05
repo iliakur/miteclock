@@ -109,7 +109,6 @@ def application_context(mite_server, shortcuts):
             mite=MiteSettings(
                 api=api, get=partial(api, "get"), stopwatch=StopWatch(api)
             ),
-            account="test",
             menu_keys="asdfjkl;",
             shortcuts=shortcuts,
         ),

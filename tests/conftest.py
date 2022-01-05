@@ -1,19 +1,23 @@
 import pytest
 
+from miteclock.activities import validate_shortcuts
+
 
 @pytest.fixture
 def shortcuts():
-    return {
-        "o": "OCP",
-        "a": "ACME",
-        "c": "Communication",
-        "d": "Development",
-        "q": {"pattern": "QA", "match": "strict"},
-        "daily": ["o", "c", "daily stand-up"],
-        "weekly": ["o", "c", "weekly meeting"],
-        "nested": ["ad", "hunting for bugs"],
-        "ad": ["a", "d"],
-    }
+    return validate_shortcuts(
+        {
+            "o": "OCP",
+            "a": "ACME",
+            "c": "Communication",
+            "d": "Development",
+            "q": {"pattern": "QA", "match": "strict"},
+            "daily": ["o", "c", "daily stand-up"],
+            "weekly": ["o", "c", "weekly meeting"],
+            "nested": ["ad", "hunting for bugs"],
+            "ad": ["a", "d"],
+        }
+    )
 
 
 @pytest.fixture

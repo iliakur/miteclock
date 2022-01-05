@@ -1,6 +1,8 @@
+import hypothesis.strategies as st
 import pytest
+from hypothesis import given
 
-from miteclock import activities
+from miteclock import activities as a
 
 
 @pytest.mark.parametrize(
@@ -20,10 +22,7 @@ from miteclock import activities
     ],
 )
 def test_to_time_entry_spec(activity, shortcuts, time_entry, projects, services):
-    assert (
-        activities.to_time_entry_spec(activity, shortcuts, projects, services)
-        == time_entry
-    )
+    assert a.to_time_entry_spec(activity, shortcuts, projects, services) == time_entry
 
 
 @pytest.mark.parametrize(
@@ -39,18 +38,18 @@ def test_to_time_entry_spec_invalid_input(activity):
     with pytest.raises(ValueError):
         # Neither projects, nor services matter here.
         # Shortcuts are left empty to make sure nothing is expanded.
-        activities.to_time_entry_spec(activity, {}, [], [])
+        a.to_time_entry_spec(activity, {}, [], [])
 
 
 def test_to_time_entry_spec_empty_input():
     """An empty input should never happen."""
     with pytest.raises(AssertionError):
-        activities.to_time_entry_spec([], {}, [], [])
+        a.to_time_entry_spec([], {}, [], [])
 
 
 def test_to_time_entry_spec_avoids_cycles():
     with pytest.raises(ValueError) as e:
-        activities.to_time_entry_spec(["a"], {"a": "b", "b": "a"}, [], [])
+        a.to_time_entry_spec(["a"], {"a": "b", "b": "a"}, [], [])
         assert "a -> b -> a" in e
 
 
@@ -67,7 +66,7 @@ def test_to_time_entry_spec_avoids_cycles():
     ],
 )
 def test_find_unique(pattern, match, services):
-    assert activities.find_unique(services, "services", pattern) == match
+    assert a.find_unique(services, "services", pattern) == match
 
 
 @pytest.mark.parametrize(
@@ -84,4 +83,32 @@ def test_find_unique(pattern, match, services):
 )
 def test_find_unique_invalid(services, pattern):
     with pytest.raises(ValueError):
-        activities.find_unique(services, "services", pattern)
+        a.find_unique(services, "services", pattern)
+
+
+numbers = st.integers() | st.floats()
+
+
+@given(st.lists(numbers | st.text()) | numbers | st.text())
+def test_validate_shortcuts_not_dict(data):
+    with pytest.raises(TypeError):
+        a.validate_shortcuts(data)
+
+
+@given(
+    st.dictionaries(st.text(), st.lists(st.text(), min_size=1, max_size=3) | st.text())
+)
+def test_validate_shortcuts_valid_simple_patterns(data):
+    a.validate_shortcuts(data)
+
+
+@given(
+    st.dictionaries(
+        st.text(),
+        st.lists(st.text(), min_size=4) | st.just([]) | numbers,
+        min_size=1,  # Empty dictionary is valid, so insist here on at least one key.
+    )
+)
+def test_validate_shortcuts_invalid_simple_patterns(data):
+    with pytest.raises((TypeError, ValueError)):
+        a.validate_shortcuts(data)

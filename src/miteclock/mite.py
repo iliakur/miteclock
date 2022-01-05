@@ -5,12 +5,12 @@ import backoff
 import requests
 
 
-def init_api(account, apikey, app):
+def init_api(base_url, apikey, app_name, app_version):
     """Set up session for making requests to mite api."""
     session = requests.Session()
     session.headers.update(
         {
-            "User-Agent": f"{app.name}: v{app.version}",
+            "User-Agent": f"{app_name}: v{app_version}",
             "Content-Type": "application/json",
             "X-MiteApiKey": apikey,
         }
@@ -18,7 +18,6 @@ def init_api(account, apikey, app):
     # Adding a hook to always make sure our requests succeed.
     # Kudos: https://stackoverflow.com/a/45470227/4501212
     session.hooks = {"response": [lambda r, *args, **kwargs: r.raise_for_status()]}
-    base_url = f"https://{account}.mite.yo.lk"
 
     @backoff.on_exception(
         backoff.expo,

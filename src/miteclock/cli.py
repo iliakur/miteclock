@@ -5,39 +5,21 @@ the terminal and the user input.
 """
 import json
 import sys
-from dataclasses import asdict
 from functools import partial
 from itertools import chain, combinations
 from operator import itemgetter
 
+import attrs
 import click
+from attrs import asdict
 from click_aliases import ClickAliasedGroup
-from pydantic import constr
-from pydantic.dataclasses import dataclass
 
 from miteclock import __version__
 from miteclock.activities import to_time_entry_spec
-from miteclock.config import load_settings
+from miteclock.config import SettingsLoadError, initialize
 
 echo_error = partial(click.secho, fg="red")
 echo_success = partial(click.secho, fg="green")
-
-
-def _init_account():
-    """Prompt user for account information and return it for config to save."""
-    click.echo("Seems like you haven't set up miteclock yet. Let's do that now.")
-    account_name = click.prompt(
-        "Please provide an account name. This is the first part of your mite URL.\n"
-        "For example if your mite url is acme.mite.yo.lk, the account name is 'acme'.\n"
-        "Account name"
-    )
-    account_key = click.prompt(
-        "Please enter or paste your API key.\n"
-        "You can find it in the 'My User'/'Mein Benutzer' tab in mite.\n"
-        "If necessary, check the box 'Allow API Access'/'Zugriff Aktivieren'"
-    ).strip()
-    echo_success("Setup complete!\n\n")
-    return account_name, account_key
 
 
 def build_menu(key_characters, time_entries):
@@ -80,11 +62,11 @@ def _select_an_entry(menu_keys, entries_today):
     return entry
 
 
-@dataclass(frozen=True, eq=True)
+@attrs.define(frozen=True, eq=True)
 class EntrySpec:
     project_id: int
     service_id: int
-    note: constr(strip_whitespace=True)
+    note: str = attrs.field(converter=str.strip)
 
 
 def _idempotent_entry(entries_today, entry_spec, api):
@@ -119,7 +101,11 @@ def main(ctx, version):
         sys.exit(0)
     # During testing ctx.obj is constructed externally and passed in, so it's not None.
     if ctx.obj is None:
-        ctx.obj = load_settings(_init_account)
+        try:
+            ctx.obj = initialize(click.prompt)
+        except SettingsLoadError as err:
+            echo_error(str(err))
+            sys.exit(1)
 
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
@@ -156,7 +142,7 @@ def start(settings, last, activity):
 
     The activity can be specified as a combination of shortcuts and selector
     patterns as well as raw notes.
-    The result of expanding the shortcuts must, however, result in this form:
+    Expanding the shortcuts must result in this form:
 
     <project_pattern> <service_pattern> <note>
 
@@ -246,7 +232,7 @@ def completion(settings, shell):
     echo_success(f"Success! Added {shell} completion loading to {rc_file}.")
 
 
-@dataclass
+@attrs.define
 class TimedEntry:
     proj_name: str
     svc_name: str

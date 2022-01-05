@@ -25,8 +25,8 @@ requests = ">=2.23.0"
 click = ">=7.1.1"
 click-aliases = ">=1.0.1"
 backoff = ">=1.11.1"
-pydantic = ">=1.8.2"
 tomlkit = "^0.7.2"
+attrs = "^21.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=6.2"
@@ -47,8 +47,9 @@ pytest-clarity = "^1.0.1"
 m='miteclock.cli:main'
 
 [tool.isort]
-known_third_party = ["backoff", "click", "click_aliases", "hypothesis", "pydantic", "pytest", "requests", "toml"]
+known_third_party = ["attrs", "backoff", "click", "click_aliases", "hypothesis", "pytest", "requests", "tomlkit"]
 known_first_party = ["miteclock"]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

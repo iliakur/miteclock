@@ -16,6 +16,8 @@ a valid time entry specification that mite can understand.
 """
 import operator
 from dataclasses import dataclass
+from functools import singledispatch
+from typing import Dict, List, Mapping, TypeVar, Union
 
 MATCHING_PREDICATES = {"strict": operator.eq, "substring": operator.contains}
 
@@ -103,3 +105,49 @@ def _expand(key, shortcuts, breadcrumbs=None):
     for sk in expansions:
         next_level += _expand(sk, shortcuts, breadcrumbs=breadcrumbs + [key])
     return next_level
+
+
+ShortcutData = Dict[str, Union[str, List[str], Dict[str, str]]]
+
+
+def validate_shortcuts(sc: ShortcutData) -> ShortcutData:
+    # TODO: document that extent of validation doesn't include checking for cycles.
+    if not isinstance(sc, Mapping):
+        raise TypeError(
+            f"Shortcut definition must be a dictionary or mapping, got {type(sc)}."
+        )
+    for k, v in sc.items():
+        try:
+            _validate_shortcut_expansion(v)
+        except (ValueError, TypeError) as e:
+            raise e.__class__(f"The expansion for shortcut '{k}' is invalid: {e}")
+    return sc
+
+
+T = TypeVar("T")
+
+
+@singledispatch
+def _validate_shortcut_expansion(val: T) -> None:
+    raise TypeError(f"Unsupported expansion type: {type(val)}.")
+
+
+@_validate_shortcut_expansion.register(str)
+def _(val: str) -> None:
+    pass
+
+
+@_validate_shortcut_expansion.register(list)
+def _(val: List[str]) -> None:
+    if not val:
+        raise ValueError("List expansion cannot be empty.")
+    if len(val) > 3:
+        raise ValueError(
+            f"Shortcut expansions cannot be longer than 3 items, got {len(val)}."
+        )
+
+
+@_validate_shortcut_expansion.register(dict)
+def _(val: Dict[str, Dict[str, str]]) -> None:
+    # TODO: Include some validation here
+    pass
