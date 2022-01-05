@@ -17,7 +17,7 @@ a valid time entry specification that mite can understand.
 import operator
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import Dict, List, Mapping, TypeVar, Union
+from typing import Any, Dict, List, Mapping, Union
 
 MATCHING_PREDICATES = {"strict": operator.eq, "substring": operator.contains}
 
@@ -124,11 +124,8 @@ def validate_shortcuts(sc: ShortcutData) -> ShortcutData:
     return sc
 
 
-T = TypeVar("T")
-
-
 @singledispatch
-def _validate_shortcut_expansion(val: T) -> None:
+def _validate_shortcut_expansion(val: Any) -> None:
     raise TypeError(f"Unsupported expansion type: {type(val)}.")
 
 
