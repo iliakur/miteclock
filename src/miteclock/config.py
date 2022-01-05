@@ -28,7 +28,7 @@ def load_api_key(key_pth: Path, prompt: Callable[[str], str]) -> ApiKey:
     if key_pth.exists():
         raw, out_sink = key_pth.read_text(), os.devnull
     else:
-        raw, out_sink = prompt("Key not found, please enter it."), key_pth
+        raw, out_sink = prompt("Key not found, please enter it"), key_pth
     try:
         key = ApiKey(raw)
     except ValueError as err:
@@ -215,7 +215,7 @@ def load_config(
     prompt: Callable[[str], str] = input,
 ) -> Config:
     if not src.exists():
-        config = _load_valid_config(url=prompt("Please copy/paste your mite URL: "))
+        config = _load_valid_config(url=prompt("Please copy/paste your mite URL"))
         src.write_text(to_toml(config))
         return config
     return _load_valid_config(**_parse_toml(src.read_text()))

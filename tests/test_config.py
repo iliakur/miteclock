@@ -67,7 +67,7 @@ def test_load_api_key_file_missing(tmp_path, capsys):
     apikey_path = tmp_path / "apikey"
     assert str(load_api_key(apikey_path, prompt=prompt_for_testing(key_val))) == key_val
     out, _ = capsys.readouterr()
-    assert out == "Key not found, please enter it."
+    assert out == "Key not found, please enter it"
     assert apikey_path.read_text() == key_val + "\n"
 
 
@@ -108,7 +108,7 @@ def test_load_config_does_not_exist(conf_path, capsys):
         url="https://abc.mite.yo.lk", menu_keys="asdfjkl;", shortcuts={}
     )
     out, _ = capsys.readouterr()
-    assert out == "Please copy/paste your mite URL: "
+    assert out == "Please copy/paste your mite URL"
 
 
 def test_load_config_does_not_exist_invalid_url_input(conf_path, capsys):
@@ -126,7 +126,7 @@ def test_load_config_does_not_exist_invalid_url_input(conf_path, capsys):
         "url: HTTPS is required for security."
     )
     out, _ = capsys.readouterr()
-    assert out == "Please copy/paste your mite URL: "
+    assert out == "Please copy/paste your mite URL"
 
 
 @pytest.fixture
