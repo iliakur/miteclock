@@ -48,9 +48,9 @@ def test_to_time_entry_spec_empty_input():
 
 
 def test_to_time_entry_spec_avoids_cycles():
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError) as excinfo:
         a.to_time_entry_spec(["a"], {"a": "b", "b": "a"}, [], [])
-        assert "a -> b -> a" in e
+        assert "a -> b -> a" in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
