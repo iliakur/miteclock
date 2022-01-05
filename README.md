@@ -9,7 +9,7 @@ the day? `miteclock` is here to help!
 
 ## Installation and Setup
 
-This package should work with Python version 3.6 and higher. It doesn't have many
+This package should work with Python version 3.7 and higher. It doesn't have many
 dependencies so it should not be a huge deal to install directly in your global
 environment. Still, it's probably a better idea to create a dedicated virtualenv for it
 and then symlink the executable somewhere in your `PATH`. You could also use the
