@@ -6,6 +6,12 @@ have to adjust their config files or read up on changes to command names and the
 options. Increments in minor version signal code changes that do not require any
 adjustments from the users.
 
+## miteclock 2.1
+
+- Refactor configuration loading to be more robust and capable at catching some invalid
+  values.
+- Misc improvements to tooling and code structure.
+
 ## miteclock 2.0
 
 - Added short options for `m status --full/--short`.
