@@ -1,5 +1,6 @@
 import json
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 from functools import partial
 
 import pytest
@@ -108,7 +109,7 @@ class FakeApi:
 
 
 @pytest.fixture
-def application_context(mite_server, shortcuts):
+def application_context(mite_server, shortcuts, tmp_path):
     api = FakeApi(mite_server)
 
     return (
@@ -118,6 +119,7 @@ def application_context(mite_server, shortcuts):
             ),
             menu_keys="asdfjkl;",
             shortcuts=shortcuts,
+            config_dir=tmp_path,
         ),
         mite_server,
     )
@@ -335,9 +337,271 @@ def test_stop_running(application_context):
     ],
 )
 def test_show(item_type, output, application_context):
-    settings, mite_server = application_context
+    settings, _ = application_context
 
     result = CliRunner().invoke(cli.main, "show " + item_type, obj=settings)
 
     assert result.exit_code == 0
     assert result.output == output
+
+
+HELP_MSG = """Usage: main [OPTIONS] COMMAND [ARGS]...
+
+  miteclock
+
+  Lets you start and stop the clock in mite quickly from your terminal.
+
+  Pass the '--help' flag to sub-commands to see how to use them.
+
+Options:
+  --version  Show miteclock's version.
+  --help     Show this message and exit.
+
+Commands:
+  completion          Set up shell autocompletion.
+  resume              An alias for `start -l`.
+  show (list)         Show list of requested items.
+  start               Start the clock for an activity.
+  status              Display current state of mite.
+  stop (break,pause)  Stop current clock.
+"""
+
+
+def test_missing_config_dir(tmp_path):
+    """When config is missing we try to re-create it.
+
+    If valid input is supplied, we succeed.
+    """
+    result = CliRunner().invoke(
+        cli.main, obj=tmp_path, input="6d12e0bf974df0e9\nhttps://abc.mite.yo.lk\n"
+    )
+    assert result.exit_code == 0
+    assert result.output == (
+        "Key not found, please enter it: 6d12e0bf974df0e9\n"
+        + "Please copy/paste your mite URL: https://abc.mite.yo.lk\n"
+        + HELP_MSG
+    )
+
+
+def test_missing_config_dir_invalid_input(tmp_path):
+    """Config dir is missing and we received invalid input to one of the required fields.
+
+    This should result in a crash and a clear error message.
+    """
+    result = CliRunner().invoke(
+        cli.main, obj=tmp_path, input="6d12e0bf974df0e9\nhttps://google.com\n"
+    )
+    assert result.exit_code == 1
+    assert result.output == (
+        "Key not found, please enter it: 6d12e0bf974df0e9\n"
+        "Please copy/paste your mite URL: https://google.com\n"
+        "Detected the following problems with your configuration:\n"
+        "url: Make sure you are using a mite url.\n"
+    )
+
+
+def test_bash_completion(application_context, tmp_path):
+    rc_path = tmp_path / ".bashrc"
+    rc_path.write_text("")
+    settings, _ = application_context
+    result = CliRunner().invoke(
+        cli.main, ["completion", "bash"], obj=settings, env={"HOME": str(tmp_path)}
+    )
+    assert result.exit_code == 0
+    assert result.output == f"Success! Added bash completion loading to {rc_path}.\n"
+    # The path to source in the text below is relative to the tmp_path as both HOME and
+    # settings.config_dir
+    assert rc_path.read_text() == "\n# Added by miteclock\nsource ~/bash_completion"
+
+
+def test_bash_completion_idempotent(application_context, tmp_path):
+    rc_path = tmp_path / ".bashrc"
+    rc_path.write_text("source ~/bash_completion")
+    settings, _ = application_context
+    result = CliRunner().invoke(
+        cli.main, ["completion", "bash"], obj=settings, env={"HOME": str(tmp_path)}
+    )
+    assert result.exit_code == 0
+    assert result.output == "Looks like completions are already present.\n"
+    assert rc_path.read_text() == "source ~/bash_completion"
+
+
+@pytest.mark.parametrize(
+    "full, content",
+    [
+        (True, [cli.EmptyMessage, cli.Message("No entries today."), cli.EmptyMessage]),
+        (False, []),
+    ],
+)
+def test_status_no_entries(full, content):
+    assert cli.report_status([], full) == [
+        cli.Message("The clock is not running", {"fg": "red", "bold": True}),
+        *content,
+        cli.Message("Total time clocked in today: 0h0m", {"bold": True}),
+    ]
+
+
+@pytest.fixture
+def entries():
+    """Some time entries to test with.
+
+    The order matters: we want them NOT to follow creation time so that we can
+    test the sorting for "full status".
+    """
+    return [
+        cli.Entry(
+            project_name="a",
+            service_name="work",
+            note="test",
+            minutes=cli.MinuteCount(7),
+            created_at=datetime(2022, 1, 16, hour=9, minute=10),
+        ),
+        cli.Entry(
+            project_name="a",
+            service_name="work",
+            note="",
+            minutes=cli.MinuteCount(4),
+            created_at=datetime(2022, 1, 16, hour=9, minute=5),
+        ),
+        cli.Entry(
+            project_name="a",
+            service_name="work",
+            note="test",
+            minutes=cli.MinuteCount(55),
+            created_at=datetime(2022, 1, 16, hour=15, minute=5),
+        ),
+    ]
+
+
+@pytest.mark.parametrize(
+    "full, content",
+    [
+        (False, []),
+        (
+            True,
+            [
+                cli.EmptyMessage,
+                cli.Message("Entries today:"),
+                cli.EmptyMessage,
+                cli.Message(("Project: a\nService: work\nNote: \nTime spent: 0h4m")),
+                cli.EmptyMessage,
+                cli.Message(
+                    ("Project: a\nService: work\nNote: test\nTime spent: 0h7m")
+                ),
+                cli.EmptyMessage,
+                cli.Message(
+                    (
+                        "Project: a\n"
+                        "Service: work\n"
+                        "Note: test\n"
+                        "Time spent: 0h55m"
+                    )
+                ),
+                cli.EmptyMessage,
+            ],
+        ),
+    ],
+)
+def test_status_untracked_entries(full, content, entries):
+    assert cli.report_status(entries, full=full) == [
+        cli.Message("The clock is not running", {"fg": "red", "bold": True}),
+        *content,
+        cli.Message("Total time clocked in today: 1h6m", {"bold": True}),
+    ]
+
+
+@pytest.mark.parametrize(
+    "full, content",
+    [
+        (
+            False,
+            [
+                cli.Message("Below is the entry being tracked."),
+                cli.Message("Project: a\nService: work\nNote: \nTime spent: 0h4m"),
+            ],
+        ),
+        (
+            True,
+            [
+                cli.Message("Entries today:"),
+                cli.EmptyMessage,
+                cli.Message(
+                    "Project: a\nService: work\nNote: \nTime spent: 0h4m",
+                    fmt_keywords={"fg": "green", "bold": True},
+                ),
+                cli.EmptyMessage,
+                cli.Message("Project: a\nService: work\nNote: test\nTime spent: 0h7m"),
+                cli.EmptyMessage,
+                cli.Message("Project: a\nService: work\nNote: test\nTime spent: 0h55m"),
+            ],
+        ),
+    ],
+)
+def test_status_with_tracked(full, content, entries):
+    to_be_tracked = entries[1]
+    entries[1] = cli.TrackedEntry(
+        to_be_tracked.project_name,
+        to_be_tracked.service_name,
+        to_be_tracked.note,
+        to_be_tracked.minutes,
+        to_be_tracked.created_at,
+    )
+    assert cli.report_status(entries, full=full) == [
+        cli.Message("The clock is running!", {"fg": "green", "bold": True}),
+        cli.EmptyMessage,
+        *content,
+        cli.EmptyMessage,
+        cli.Message("Total time clocked in today: 1h6m", {"bold": True}),
+    ]
+
+
+@pytest.mark.parametrize(
+    "tracking, entry_type, minutes",
+    [
+        ({}, cli.Entry, 15),
+        (
+            {"tracking": {"since": "2015-10-16T12:44:17+02:00", "minutes": 12}},
+            cli.TrackedEntry,
+            12,
+        ),
+    ],
+)
+def test_parse_mite_entry(tracking, entry_type, minutes):
+    # Taken from mite API docs.
+    raw = {
+        "id": 36159117,
+        "minutes": 15,
+        "date_at": "2015-10-16",
+        "note": "Rework description of authentication process",
+        "billable": True,
+        "locked": False,
+        "revenue": None,
+        "hourly_rate": 0,
+        "user_id": 211,
+        "user_name": "Noah Scott",
+        "project_id": 88309,
+        "project_name": "API Docs",
+        "customer_id": 3213,
+        "customer_name": "King Inc.",
+        "service_id": 12984,
+        "service_name": "Writing",
+        "created_at": "2015-10-16T12:39:00+02:00",
+        "updated_at": "2015-10-16T12:39:00+02:00",
+    }
+    raw.update(tracking)
+    assert cli.parse_mite_entry(raw) == entry_type(
+        project_name="API Docs",
+        service_name="Writing",
+        note="Rework description of authentication process",
+        minutes=cli.MinuteCount(minutes),
+        created_at=datetime(2015, 10, 16, 12, 39, tzinfo=timezone(timedelta(hours=2))),
+    )
+
+
+def test_minute_count_addition():
+    with pytest.raises(TypeError) as excinfo:
+        cli.MinuteCount(3) + 3
+    assert (
+        str(excinfo.value)
+        == "unsupported operand type(s) for +: 'MinuteCount' and 'int'"
+    )

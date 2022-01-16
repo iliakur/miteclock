@@ -5,7 +5,7 @@ import os
 import re
 from functools import partial, singledispatch, wraps
 from pathlib import Path
-from typing import Callable, Dict, TypeVar
+from typing import Callable, Dict, Optional, TypeVar
 from urllib.parse import urlsplit, urlunsplit
 
 import attrs
@@ -55,15 +55,6 @@ class ApiKey:
         return self._value
 
 
-@attrs.define(frozen=True)
-class Meta:
-    """Create a namespace with information about the app, such as name and version."""
-
-    name: str = __name__
-    version: str = __version__
-    config_dir: Path = CONFIG_ROOT
-
-
 @attrs.frozen
 class MiteSettings:
     """Settings related specifically to mite api."""
@@ -81,18 +72,18 @@ class Settings:
     mite: MiteSettings
     menu_keys: str
     shortcuts: dict
-    meta: Meta = Meta()
+    config_dir: Path
 
 
-def initialize(prompt: Callable[[str], str]):
+def initialize(config_root: Optional[Path], prompt: Callable[[str], str]):
     """Try to load the settings from CONFIG_FILE.
 
     Execute the callback in case this runs into an error.
     """
-    meta = Meta()
-    key = load_api_key(CONFIG_ROOT / "apikey", prompt)
-    config = load_config(CONFIG_ROOT / "config.toml", prompt)
-    mite_api = init_api(str(config.url), str(key), meta.name, meta.version)
+    config_root = CONFIG_ROOT if config_root is None else config_root
+    key = load_api_key(config_root / "apikey", prompt)
+    config = load_config(config_root / "config.toml", prompt)
+    mite_api = init_api(str(config.url), str(key), __name__, __version__)
 
     return Settings(
         mite=MiteSettings(
@@ -100,7 +91,7 @@ def initialize(prompt: Callable[[str], str]):
         ),
         menu_keys=config.menu_keys,
         shortcuts=config.shortcuts,
-        meta=meta,
+        config_dir=config_root,
     )
 
 
@@ -253,9 +244,9 @@ def _(err: ParseError, contents: str) -> str:
     problem_line = contents.split("\n")[err.line - 1]
     highlight_line = " " * err.col + "^"
     return "\n".join(
-        [
+        (
             _explain_tomlkit_error.dispatch(TOMLKitError)(err, contents),
             problem_line,
             highlight_line,
-        ]
+        )
     )

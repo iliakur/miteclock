@@ -3,18 +3,24 @@
 This module puts all the others together and uses click to interact with
 the terminal and the user input.
 """
+from __future__ import annotations
+
 import json
+import re
 import sys
-from functools import partial
-from itertools import chain, combinations
-from operator import itemgetter
+from datetime import datetime
+from functools import partial, singledispatch
+from itertools import chain, combinations, repeat
+from operator import attrgetter, itemgetter
+from pathlib import Path
+from typing import Any, Callable, Dict, List
 
 import attrs
 import click
 from attrs import asdict
 from click_aliases import ClickAliasedGroup
 
-from miteclock import __version__
+from miteclock import __name__, __version__
 from miteclock.activities import to_time_entry_spec
 from miteclock.config import SettingsLoadError, initialize
 
@@ -94,15 +100,15 @@ def main(ctx, version):
 
     Lets you start and stop the clock in mite quickly from your terminal.
 
-    Pass the `--help` flag to sub-commands to see how to use them.
+    Pass the '--help' flag to sub-commands to see how to use them.
     """
     if version:
         click.echo(f"miteclock {__version__}")
         sys.exit(0)
     # During testing ctx.obj is constructed externally and passed in, so it's not None.
-    if ctx.obj is None:
+    if ctx.obj is None or isinstance(ctx.obj, Path):
         try:
-            ctx.obj = initialize(click.prompt)
+            ctx.obj = initialize(config_root=ctx.obj, prompt=click.prompt)
         except SettingsLoadError as err:
             echo_error(str(err))
             sys.exit(1)
@@ -218,37 +224,20 @@ def completion(settings, shell):
     from shutil import copyfile
 
     completion_src = Path(__file__).parent / "completions" / shell
-    completion_dest = settings.app.config_dir / f"{shell}_completion"
+    completion_dest = settings.config_dir / f"{shell}_completion"
     copyfile(completion_src, completion_dest)
-    # Using a tilde notation is more portable for users who sync their
-    # rc files between different machines. It's also easier to read.
+    # Using tilde instead of resolving the full path is more portable for users who
+    # synchronize  their rc files between different machines.
     completion_rc_path = "~" / completion_dest.relative_to(Path.home())
     source_completion = f"source {completion_rc_path}"
     rc_file = Path.home() / f".{shell}rc"
     with rc_file.open(mode="r+") as fh:
-        if source_completion not in fh.read():
-            comment = f"# Added by {settings.app.name}"
-            fh.write(f"\n{comment}\n{source_completion}")
+        if source_completion in fh.read():
+            echo_success("Looks like completions are already present.")
+            return
+        comment = f"# Added by {__name__}"
+        fh.write(f"\n{comment}\n{source_completion}")
     echo_success(f"Success! Added {shell} completion loading to {rc_file}.")
-
-
-@attrs.define
-class TimedEntry:
-    proj_name: str
-    svc_name: str
-    note: str
-    minutes: int
-    tracked: bool = False
-
-    def __str__(self):
-        return "\n".join(
-            [
-                f"Project: {self.proj_name}",
-                f"Service: {self.svc_name}",
-                f"Note: {self.note}",
-                f"Time spent: {_to_hours_and_minutes(self.minutes)}",
-            ]
-        )
 
 
 @main.command()
@@ -266,52 +255,158 @@ def status(settings, full):
     Tells you whether the clock is running or not. If it's running, shows the
     entry that you are tracking. Can also display all entries for the day.
     """
-    entries_today = [e["time_entry"] for e in settings.mite.get("daily")]
+    entries_today = [
+        parse_mite_entry(e["time_entry"]) for e in settings.mite.get("daily")
+    ]
+    for msg in report_status(entries_today, full):
+        click.secho(msg.content, **msg.fmt_keywords)
 
-    tracker_running = False
-    entries_for_display = []
-    total_minutes_today = 0
-    for e in sorted(entries_today, key=itemgetter("created_at")):
-        if "tracking" in e:
-            tracker_running = True
-            entry_minutes = e["tracking"]["minutes"]
-            entries_for_display.append(
-                TimedEntry(
-                    e["project_name"],
-                    e["service_name"],
-                    e["note"],
-                    entry_minutes,
-                    tracked=True,
-                )
+
+@attrs.frozen
+class Entry:
+    project_name: str
+    service_name: str
+    note: str
+    minutes: MinuteCount
+    created_at: datetime
+
+
+def _to_message(e: Entry) -> Message:
+    return Message(
+        "\n".join(
+            (
+                f"Project: {e.project_name}",
+                f"Service: {e.service_name}",
+                f"Note: {e.note}",
+                f"Time spent: {e.minutes}",
             )
-        else:
-            entry_minutes = e["minutes"]
-            if full:
-                entries_for_display.append(
-                    TimedEntry(
-                        e["project_name"], e["service_name"], e["note"], entry_minutes
-                    )
-                )
-        total_minutes_today += entry_minutes
-
-    if tracker_running:
-        echo_success("The clock is running!", bold=True)
-    else:
-        echo_error("The clock is not running.", bold=True)
-
-    if full:
-        click.echo("Entries today:")
-        for timed_e in entries_for_display:
-            echo_func = echo_success if timed_e.tracked else click.echo
-            echo_func("\n" + str(timed_e))
-    elif tracker_running:
-        click.echo("Tracking the following entry.")
-        click.echo(str(entries_for_display[0]))
-    click.secho(
-        f"\nTotal time clocked in today: {_to_hours_and_minutes(total_minutes_today)}",
-        bold=True,
+        )
     )
 
 
-def _to_hours_and_minutes(minutes):
-    return "{0}h{1}m".format(*divmod(minutes, 60))
+@attrs.frozen
+class TrackedEntry(Entry):
+    pass
+
+
+def parse_mite_entry(raw: Dict[str, Any]) -> Entry:
+    if "tracking" in raw:
+        entry_type = TrackedEntry
+        minutes = raw["tracking"]["minutes"]
+    else:
+        entry_type = Entry
+        minutes = raw["minutes"]
+    return entry_type(
+        project_name=raw["project_name"],
+        service_name=raw["service_name"],
+        note=raw["note"],
+        minutes=MinuteCount(minutes),
+        created_at=datetime.strptime(
+            re.sub(r"(\+\d\d)\:(\d\d)$", r"\1\2", raw["created_at"]), "%Y-%m-%dT%X%z"
+        ),
+    )
+
+
+@attrs.frozen
+class Message:
+    content: str
+    fmt_keywords: Dict[str, Any] = attrs.field(factory=dict)
+
+
+EmptyMessage = Message("")
+
+
+@attrs.frozen
+class MinuteCount:
+    value: int
+
+    def __str__(self) -> str:
+        return "{0}h{1}m".format(*divmod(self.value, 60))
+
+    def __add__(self, other: Any) -> MinuteCount:
+        if not isinstance(other, MinuteCount):
+            return NotImplemented
+        return attrs.evolve(self, value=self.value + other.value)
+
+
+@attrs.frozen
+class _Context:
+    order: Callable[[List[Entry]], List[Entry]]
+    interpret: Callable[[Entry], Message]
+    summarize: Callable[[List[Message]], List[Message]]
+
+
+def _by_creation_time(entries: List[Entry]) -> List[Entry]:
+    return sorted(entries, key=attrgetter("created_at"))
+
+
+def _full_summary(messages: List[Message]) -> List[Message]:
+    return (
+        [Message("Entries today:")]
+        + list(
+            chain.from_iterable(zip(repeat(EmptyMessage), messages)),
+        )
+        if messages
+        else [Message("No entries today.")]
+    )
+
+
+def _short_summary(messages: List[Message]) -> List[Message]:
+    return [Message("Below is the entry being tracked.")] + messages if messages else []
+
+
+@singledispatch
+def _short_interpret(e: Entry) -> Message:
+    return EmptyMessage
+
+
+@_short_interpret.register
+def _(e: TrackedEntry) -> Message:
+    return _to_message(e)
+
+
+@singledispatch
+def _full_intrepret(e: Entry) -> Message:
+    return _to_message(e)
+
+
+@_full_intrepret.register
+def _(e: TrackedEntry) -> Message:
+    return attrs.evolve(_to_message(e), fmt_keywords={"fg": "green", "bold": True})
+
+
+def report_status(entries: List[Entry], full: bool) -> List[Message]:
+    header = Message("The clock is not running", {"fg": "red", "bold": True})
+    total_m = MinuteCount(0)
+    ctx = (
+        _Context(
+            order=_by_creation_time,
+            interpret=_full_intrepret,
+            summarize=_full_summary,
+        )
+        if full
+        else _Context(
+            order=lambda entries: entries,
+            interpret=_short_interpret,
+            summarize=_short_summary,
+        )
+    )
+    body: List[Message] = []
+    for e in ctx.order(entries):
+        header = _update_header(e, header)
+        body.append(ctx.interpret(e))
+        total_m += e.minutes
+    body = ctx.summarize([m for m in body if m.content])
+    body_padded = [EmptyMessage, *body, EmptyMessage] if body else body
+    footer = Message(f"Total time clocked in today: {total_m}", {"bold": True})
+    return [header, *body_padded, footer]
+
+
+@singledispatch
+def _update_header(e: Entry, hdr: Message) -> Message:
+    return hdr
+
+
+@_update_header.register
+def _(e: TrackedEntry, hdr: Message) -> Message:
+    return Message("The clock is running!", {"fg": "green", "bold": True})
