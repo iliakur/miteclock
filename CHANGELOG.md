@@ -6,6 +6,11 @@ features, because we make all efforts to avoid forcing users to change their
 configuration. Once a command is added, we **never** remove it. Increments in minor
 version signal code changes that do not require any attention from users.
 
+## miteclock 2.2
+
+- Extended test coverage, found and fixed a bug in `m status` as a result.
+- Reworked documentation in README, CHANGELOG and help messages.
+
 ## miteclock 2.1
 
 - Refactor configuration loading to be more robust and capable at catching some invalid
