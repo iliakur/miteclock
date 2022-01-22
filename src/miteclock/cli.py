@@ -22,7 +22,7 @@ from click_aliases import ClickAliasedGroup
 
 from miteclock import __name__, __version__
 from miteclock.activities import to_time_entry_spec
-from miteclock.config import SettingsLoadError, initialize
+from miteclock.settings import SettingsLoadError, initialize
 
 echo_error = partial(click.secho, fg="red")
 echo_success = partial(click.secho, fg="green")

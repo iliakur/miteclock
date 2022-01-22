@@ -1,4 +1,4 @@
-"""Configuration."""
+"""Manage the application's settings."""
 from __future__ import annotations
 
 import os
@@ -76,10 +76,7 @@ class Settings:
 
 
 def initialize(config_root: Optional[Path], prompt: Callable[[str], str]):
-    """Try to load the settings from CONFIG_FILE.
-
-    Execute the callback in case this runs into an error.
-    """
+    """Try to load the settings from config_root, prompting if needed."""
     config_root = CONFIG_ROOT if config_root is None else config_root
     key = load_api_key(config_root / "apikey", prompt)
     config = load_config(config_root / "config.toml", prompt)

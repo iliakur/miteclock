@@ -4,7 +4,7 @@ import pytest
 from hypothesis import given
 from hypothesis.strategies import from_regex
 
-from miteclock.config import (
+from miteclock.settings import (
     ApiKey,
     Config,
     SettingsLoadError,

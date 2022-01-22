@@ -7,8 +7,8 @@ import pytest
 from click.testing import CliRunner
 
 from miteclock import __version__, cli
-from miteclock.config import MiteSettings, Settings
 from miteclock.mite import StopWatch
+from miteclock.settings import MiteSettings, Settings
 
 
 def test_build_menu(time_entries):
