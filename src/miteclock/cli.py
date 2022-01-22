@@ -245,7 +245,8 @@ def completion(settings, shell):
     "-f/-s",
     "--full/--short",
     default=False,
-    help="Pass '--full' to display all entries for the day.",
+    help="Pass '--full' to display all entries for the day. "
+    "By default only the currently tracked entry (if any) is displayed.",
     show_default=True,
 )
 @click.pass_obj
