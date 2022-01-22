@@ -1,10 +1,10 @@
 # Changelog
 
 The version numbers follow a simple scheme: `<major>.<minor>`. Increments in major
-version number signal a change in the user interface. This means the users will likely
-have to adjust their config files or read up on changes to command names and their
-options. Increments in minor version signal code changes that do not require any
-adjustments from the users.
+version number signal changes that may be of interest to users. This mostly means new
+features, because we make all efforts to avoid forcing users to change their
+configuration. Once a command is added, we **never** remove it. Increments in minor
+version signal code changes that do not require any attention from users.
 
 ## miteclock 2.1
 
