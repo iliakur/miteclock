@@ -603,6 +603,18 @@ def test_parse_mite_entry(tracking, entry_type, minutes):
     )
 
 
+def test_parse_mite_entry_missing_fields():
+    assert cli.parse_mite_entry(
+        {"minutes": 5, "created_at": "2015-10-16T12:39:00+02:00"}
+    ) == cli.Entry(
+        project_name="",
+        service_name="",
+        note="",
+        minutes=cli.MinuteCount(5),
+        created_at=datetime(2015, 10, 16, 12, 39, tzinfo=timezone(timedelta(hours=2))),
+    )
+
+
 def test_minute_count_addition():
     with pytest.raises(TypeError) as excinfo:
         cli.MinuteCount(3) + 3

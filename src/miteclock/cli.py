@@ -298,9 +298,9 @@ def parse_mite_entry(raw: Dict[str, Any]) -> Entry:
         entry_type = Entry
         minutes = raw["minutes"]
     return entry_type(
-        project_name=raw["project_name"],
-        service_name=raw["service_name"],
-        note=raw["note"],
+        project_name=raw.get("project_name", ""),
+        service_name=raw.get("service_name", ""),
+        note=raw.get("note", ""),
         minutes=MinuteCount(minutes),
         created_at=datetime.strptime(
             re.sub(r"(\+\d\d)\:(\d\d)$", r"\1\2", raw["created_at"]), "%Y-%m-%dT%X%z"
