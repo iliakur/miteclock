@@ -6,6 +6,11 @@ features, because we make all efforts to avoid forcing users to change their
 configuration. Once a command is added, we **never** remove it. Increments in minor
 version signal code changes that do not require any attention from users.
 
+## miteclock 2.3
+
+- Fix crash at initialization if config folder does not exist. See issue #3.
+- Fix crash of `m status` if entries without project or service name are present.
+
 ## miteclock 2.2
 
 - Extended test coverage, found and fixed a bug in `m status` as a result.
