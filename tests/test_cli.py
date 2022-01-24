@@ -125,19 +125,21 @@ def application_context(mite_server, shortcuts, tmp_path):
     )
 
 
-def test_version():
+def test_version(application_context):
     """`--version` prints application version and exits with code 0."""
-    result = CliRunner().invoke(cli.main, "--version")
+    settings, _ = application_context
+    result = CliRunner().invoke(cli.main, "--version", obj=settings)
     assert result.exit_code == 0
     assert f"miteclock {__version__}" in result.output
 
 
-def test_help_message():
+def test_help_message(application_context):
     """Invoking without any args and with `--help` should show help message."""
-    no_args_passed = CliRunner().invoke(cli.main)
+    settings, _ = application_context
+    no_args_passed = CliRunner().invoke(cli.main, obj=settings)
     assert no_args_passed.exit_code == 0
 
-    help_flag_passed = CliRunner().invoke(cli.main, "--help")
+    help_flag_passed = CliRunner().invoke(cli.main, "--help", obj=settings)
     assert help_flag_passed.exit_code == 0
 
     assert no_args_passed.output == help_flag_passed.output
@@ -381,6 +383,9 @@ def test_missing_config_dir(tmp_path):
         + "Please copy/paste your mite URL: https://abc.mite.yo.lk\n"
         + HELP_MSG
     )
+    assert (
+        tmp_path / ".config" / "miteclock" / "apikey"
+    ).read_text() == "6d12e0bf974df0e9\n"
 
 
 def test_missing_config_dir_invalid_input(tmp_path):

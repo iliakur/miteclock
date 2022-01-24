@@ -77,7 +77,10 @@ class Settings:
 
 def initialize(config_root: Optional[Path], prompt: Callable[[str], str]):
     """Try to load the settings from config_root, prompting if needed."""
-    config_root = CONFIG_ROOT if config_root is None else config_root
+    config_root = (
+        (Path.home() if config_root is None else config_root) / ".config" / "miteclock"
+    )
+    config_root.mkdir(parents=True, exist_ok=True)
     key = load_api_key(config_root / "apikey", prompt)
     config = load_config(config_root / "config.toml", prompt)
     mite_api = init_api(str(config.url), str(key), __name__, __version__)
