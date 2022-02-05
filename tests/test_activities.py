@@ -120,3 +120,11 @@ def test_empty_activity_spec():
         "service_id": None,
         "note": "",
     }
+
+
+def test_activity_has_no_note():
+    assert a.to_time_entry_spec(["", ""], {}, [], []) == {
+        "project_id": None,
+        "service_id": None,
+        "note": "",
+    }

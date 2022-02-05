@@ -61,8 +61,10 @@ def to_time_entry_spec(activity, shortcuts, projects, services):
     if len(activity) > 3:
         raise ValueError("Activity definition too long, please enter at most 3 items.")
     values = []
-    for a in activity:
-        values += _expand(a, shortcuts)
+    for key in activity:
+        values += _expand(key, shortcuts)
+    if len(values) == 2:
+        values += [""]
     if len(values) != 3:
         raise ValueError(
             f"Expanding your input resulted in an invalid time entry spec: {values},\n"
