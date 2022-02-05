@@ -13,7 +13,7 @@ from functools import partial, singledispatch
 from itertools import chain, combinations, repeat
 from operator import attrgetter, itemgetter
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 import attrs
 import click
@@ -68,10 +68,12 @@ def _select_an_entry(menu_keys, entries_today):
     return entry
 
 
-@attrs.define(frozen=True, eq=True)
-class EntrySpec:
-    project_id: int
-    service_id: int
+@attrs.frozen(eq=True)
+class TimeEntrySpec:
+    """Specification to create a time entry."""
+
+    project_id: Optional[int]
+    service_id: Optional[int]
     note: str = attrs.field(converter=str.strip)
 
 
@@ -81,9 +83,10 @@ def _idempotent_entry(entries_today, entry_spec, api):
     If the entry specification does not match any existing entries, create a new
     time entry and return it, otherwise return matched existing entry.
     """
-    entry = EntrySpec(**entry_spec)
+    entry = TimeEntrySpec(**entry_spec)
     existing_specs = {
-        EntrySpec(e["project_id"], e["service_id"], e["note"]): e for e in entries_today
+        TimeEntrySpec(e["project_id"], e["service_id"], e["note"]): e
+        for e in entries_today
     }
     if entry in existing_specs:
         return existing_specs[entry]
