@@ -23,9 +23,9 @@ See [here](#why-yet-another-mite-cli) for more context.
 ## Installation and Setup
 
 This program is tested with Python versions 3.7-3.10. It doesn't have many dependencies
-so it is no big deal to install directly in your global environment. The wiser option is
-to install it into a dedicated virtualenv and then add a symbolic link to the executable
-somewhere in your `PATH`. An even better option is to use the
+so it is no big deal to install directly in your system Python environment. It's wiser
+though to install it into a dedicated virtualenv and then add a symbolic link to the
+executable somewhere in your `PATH`. An even better option is to use the
 [pipx](https://github.com/pipxproject/pipx) wrapper which automatically takes care of
 these two steps.
 
@@ -70,17 +70,17 @@ In these projects you perform the following services (Dienstleistungen):
 - Irregular Maintenance
 - QA
 
-From your experience with the mite webapp, you know that in order to add an entry and
-start the clock for it you need to specify the following three fields:
+From your experience with the mite webapp, you know that a time entry has the following
+three fields:
 
-- project
-- service
-- note
+1. project
+1. service
+1. note
 
-However, what if instead of selecting the project and the service from a drop-down you
-did so by pressing just one key? This is much faster, especially if you have more
-realistic (i.e. larger) sets of projects and services that you'd have to sift through
-with the drop-down.
+What if instead of selecting the project and the service from a drop-down you did so by
+pressing just one key? This is much faster, especially if you have more realistic (i.e.
+larger) sets of projects and services that you'd have to sift through with the
+drop-down.
 
 These keys are known as shortcuts and you can define them in your configuration file.
 For our example here, let's create a few mappings from keys to project/service names. We
@@ -109,12 +109,32 @@ m start a d 'writing some code'
 ```
 
 The first two arguments to `start` are expanded into "ACME &#x2013; Self-healing
-container deployments" and "Development" respectively. The last argument is the note and
-should be quoted to ensure it is interpreted as one item, not as separate arguments.
+container deployments" and "Development" respectively. The last argument is the note. We
+put it in quotes so that it is treated as a single argument.
 
-While most activities will likely require you to enter a unique note to describe them,
-there are also some recurring appointments and tasks for which the notes don't need to
-vary either. Wouldn't it be nice to have shortcuts for those too? Let's add some
+Note that **order matters** for the expanded items. It **must** be like in the webapp:
+
+1. project
+1. service
+1. note
+
+If you want to leave any field unspecified, enter an empty string for it. For example if
+you're working for "ACME" but haven't narrowed your work down to an exact service or
+task, run this:
+
+```sh
+m start a '' ''
+```
+
+Leaving notes empty and filling them out later is so common, that an empty note can be
+left out. We can shorten the command above to:
+
+```sh
+m start a ''
+```
+
+Another way to avoid writing out a note is to put it into a shortcut definition. This
+works well for recurring meetings or tasks where the note stays the same. Let's add some
 shortcuts that describe recurring activities for many programmers:
 
 ```toml
