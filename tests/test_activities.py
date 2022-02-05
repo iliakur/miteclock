@@ -112,3 +112,11 @@ def test_validate_shortcuts_valid_simple_patterns(data):
 def test_validate_shortcuts_invalid_simple_patterns(data):
     with pytest.raises((TypeError, ValueError)):
         a.validate_shortcuts(data)
+
+
+def test_empty_activity_spec():
+    assert a.to_time_entry_spec(["", "", ""], {}, [], []) == {
+        "project_id": None,
+        "service_id": None,
+        "note": "",
+    }

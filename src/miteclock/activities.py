@@ -69,11 +69,19 @@ def to_time_entry_spec(activity, shortcuts, projects, services):
             "Please check your input and shortcuts."
         )
     proj_pattern, service_pattern, note = values
-    matching_project = find_unique(projects, "projects", proj_pattern)
-    matching_service = find_unique(services, "services", service_pattern)
+    matching_project = (
+        None
+        if proj_pattern == ""
+        else find_unique(projects, "projects", proj_pattern)["id"]
+    )
+    matching_service = (
+        None
+        if service_pattern == ""
+        else find_unique(services, "services", service_pattern)["id"]
+    )
     return {
-        "project_id": matching_project["id"],
-        "service_id": matching_service["id"],
+        "project_id": matching_project,
+        "service_id": matching_service,
         "note": note,
     }
 
