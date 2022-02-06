@@ -67,8 +67,9 @@ def to_time_entry_spec(activity, shortcuts, projects, services):
         values += [""]
     if len(values) != 3:
         raise ValueError(
-            f"Expanding your input resulted in an invalid time entry spec: {values},\n"
-            "Please check your input and shortcuts."
+            f"Cannot interpret the result of expanding your input: {values},\n"
+            "The result should have the following items (order matters!): "
+            "project, service, note (optional)."
         )
     proj_pattern, service_pattern, note = values
     matching_project = (
