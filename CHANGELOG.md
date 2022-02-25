@@ -1,10 +1,17 @@
 # Changelog
 
-The version numbers follow a simple scheme: `<major>.<minor>`. Increments in major
-version number signal changes that may be of interest to users. This mostly means new
-features, because we make all efforts to avoid forcing users to change their
-configuration. Once a command is added, we **never** remove it. Increments in minor
-version signal code changes that do not require any attention from users.
+The version numbers follow [CalVer](https://calver.org/). The **first number** is the
+(short) year. The **second number** is incremented with each release starting at `1` for
+each year. We make all efforts to maintain backwards-compatibility when it comes to the
+configuration and the command-line interface. Breaking changes that are unavoidable will
+be announced ahead of time and rolled out gradually.
+
+## miteclock 22.1
+
+- It is possible to specify empty project and service when calling `m start`. It is also
+  possible to omit the `note` part of an activity, this implies an empty note. See
+  [#4](https://github.com/iliakur/miteclock/issues/4).
+- Documentation and one error message have been reworked to improve clarity.
 
 ## miteclock 2.3
 
