@@ -14,40 +14,64 @@ a valid time entry specification that mite can understand.
 - there are exactly 3 fields: project pattern, service pattern, note
 - project and service patterns match exactly one project and service each
 """
-import operator
-from dataclasses import dataclass
+from abc import ABC, abstractmethod
 from functools import singledispatch
 from typing import Any, Dict, List, Mapping, Union
 
-MATCHING_PREDICATES = {"strict": operator.eq, "substring": operator.contains}
+import attrs
+import tomlkit
 
 
-@dataclass
-class Pattern:
+class MatchingPredicate(ABC):
+    @abstractmethod
+    def __call__(self, entry) -> bool:
+        ...
+
+    @property
+    @abstractmethod
+    def definition(self) -> str:
+        ...
+
+
+@attrs.define
+class StrictMatch(MatchingPredicate):
     pattern: str
-    match: str = "substring"
+    definition: str
+
+    def __call__(self, entry):
+        return entry["name"] == self.pattern
 
 
-def find_unique(entries, entry_type, pattern):
+@attrs.define
+class SubstringMatch(MatchingPredicate):
+    pattern: str
+    definition: str
+
+    def __call__(self, entry):
+        return self.pattern in entry["name"]
+
+
+def _parse_matcher(pattern_data):
+    if isinstance(pattern_data, str):
+        return SubstringMatch(pattern_data, pattern_data)
+    definition = tomlkit.dumps(pattern_data)
+    if pattern_data.get("match", "substring") == "substring":
+        return SubstringMatch(pattern_data["pattern"], definition)
+    return StrictMatch(pattern_data["pattern"], definition)
+
+
+def find_unique(entries, entry_type, pattern_data):
     """Tries to find a unique entry that matches the pattern.
 
     Ensures there is exactly one match for the given pattern.
     """
-    if isinstance(pattern, str):
-        pattern = Pattern(pattern)
-    else:
-        pattern = Pattern(**pattern)
-    pred = MATCHING_PREDICATES[pattern.match]
-    # The order matters here because operator.contains expects the filter pattern
-    # to be the second argument!
-    matches = [e for e in entries if pred(e["name"], pattern.pattern)]
-    # The validation logic is included here and not in the caller function
-    # because it is the same for services and projects.
+    pred = _parse_matcher(pattern_data)
+    matches = [e for e in entries if pred(e)]
     if not matches:
-        raise ValueError(f"'{pattern.pattern}' did not match any {entry_type}.\n")
+        raise ValueError(f"'{pred.definition}' did not match any {entry_type}.\n")
     if len(matches) > 1:
         raise ValueError(
-            f"'{pattern.pattern}' matched the following multiple {entry_type}:\n"
+            f"'{pred.definition}' matched the following multiple {entry_type}:\n"
             + "\n".join(m["name"] for m in matches)
             + "\n\n"
             + "Please provide an unambiguous pattern."
