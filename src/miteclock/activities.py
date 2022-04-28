@@ -35,29 +35,31 @@ class MatchingPredicate(ABC):
 
 @attrs.define
 class StrictMatch(MatchingPredicate):
+    fieldname: str
     pattern: str
     definition: str
 
     def __call__(self, entry):
-        return entry["name"] == self.pattern
+        return entry[self.fieldname] == self.pattern
 
 
 @attrs.define
 class SubstringMatch(MatchingPredicate):
+    fieldname: str
     pattern: str
     definition: str
 
     def __call__(self, entry):
-        return self.pattern in entry["name"]
+        return self.pattern in entry[self.fieldname]
 
 
 def _parse_matcher(pattern_data):
     if isinstance(pattern_data, str):
-        return SubstringMatch(pattern_data, pattern_data)
+        return SubstringMatch("name", pattern_data, pattern_data)
     definition = tomlkit.dumps(pattern_data)
     if pattern_data.get("match", "substring") == "substring":
-        return SubstringMatch(pattern_data["pattern"], definition)
-    return StrictMatch(pattern_data["pattern"], definition)
+        return SubstringMatch("name", pattern_data["pattern"], definition)
+    return StrictMatch("name", pattern_data["pattern"], definition)
 
 
 def find_unique(entries, entry_type, pattern_data):
