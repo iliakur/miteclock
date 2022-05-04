@@ -16,10 +16,11 @@ a valid time entry specification that mite can understand.
 """
 from abc import ABC, abstractmethod
 from functools import singledispatch
-from typing import Any, Dict, List, Mapping, Union
+from typing import Any, Dict, List, Mapping, Sequence, Union
 
 import attrs
 import tomlkit
+from tomlkit.api import inline_table
 
 
 class MatchingPredicate(ABC):
@@ -27,39 +28,85 @@ class MatchingPredicate(ABC):
     def __call__(self, entry) -> bool:
         ...
 
-    @property
-    @abstractmethod
-    def definition(self) -> str:
-        ...
+
+@attrs.frozen
+class Pattern:
+    matches: MatchingPredicate
+    definition: str
+
+    @classmethod
+    def parse(cls, pattern_data):
+        if isinstance(pattern_data, str):
+            return cls(_parse_simple(pattern_data), pattern_data)
+        definition = _as_toml(pattern_data)
+        if "project" in pattern_data:
+            if "client" in pattern_data:
+                return cls(
+                    And(
+                        [
+                            _parse_simple(pattern_data["project"]),
+                            _parse_simple(
+                                pattern_data["client"], fieldname="client_name"
+                            ),
+                        ]
+                    ),
+                    definition,
+                )
+            return cls(_parse_simple(pattern_data["project"]), definition)
+        if "client" in pattern_data:
+            raise ValueError(
+                f"Problem parsing this definition: {definition}. "
+                "Cannot filter by client only, please include a 'project' key."
+            )
+        return cls(_parse_simple(pattern_data), definition)
 
 
-@attrs.define
+def _as_toml(pattern_data):
+    tbl = inline_table()
+    for k, v in pattern_data.items():
+        if isinstance(v, str):
+            tbl[k] = v
+        else:
+            sub_tbl = inline_table()
+            sub_tbl.update(v)
+            tbl[k] = sub_tbl
+    return tomlkit.dumps(tbl)
+
+
+def _parse_simple(pattern_data, fieldname="name"):
+    if isinstance(pattern_data, str):
+        return SubstringMatch(fieldname, pattern_data)
+    if "pattern" not in pattern_data:
+        raise ValueError("'pattern' key is required.")
+    if pattern_data.get("match", "substring") == "substring":
+        return SubstringMatch(fieldname, pattern_data["pattern"])
+    return StrictMatch(fieldname, pattern_data["pattern"])
+
+
+@attrs.frozen
 class StrictMatch(MatchingPredicate):
     fieldname: str
     pattern: str
-    definition: str
 
     def __call__(self, entry):
         return entry[self.fieldname] == self.pattern
 
 
-@attrs.define
+@attrs.frozen
 class SubstringMatch(MatchingPredicate):
     fieldname: str
     pattern: str
-    definition: str
 
     def __call__(self, entry):
         return self.pattern in entry[self.fieldname]
 
 
-def _parse_matcher(pattern_data):
-    if isinstance(pattern_data, str):
-        return SubstringMatch("name", pattern_data, pattern_data)
-    definition = tomlkit.dumps(pattern_data)
-    if pattern_data.get("match", "substring") == "substring":
-        return SubstringMatch("name", pattern_data["pattern"], definition)
-    return StrictMatch("name", pattern_data["pattern"], definition)
+@attrs.frozen
+class And(MatchingPredicate):
+    predicates: Sequence[MatchingPredicate]
+
+    def __call__(self, entry) -> bool:
+        return all(pred(entry) for pred in self.predicates)
 
 
 def find_unique(entries, entry_type, pattern_data):
@@ -67,18 +114,18 @@ def find_unique(entries, entry_type, pattern_data):
 
     Ensures there is exactly one match for the given pattern.
     """
-    pred = _parse_matcher(pattern_data)
-    matches = [e for e in entries if pred(e)]
-    if not matches:
-        raise ValueError(f"'{pred.definition}' did not match any {entry_type}.\n")
-    if len(matches) > 1:
+    pattern = Pattern.parse(pattern_data)
+    matched = [e for e in entries if pattern.matches(e)]
+    if not matched:
+        raise ValueError(f"'{pattern.definition}' did not match any {entry_type}.\n")
+    if len(matched) > 1:
         raise ValueError(
-            f"'{pred.definition}' matched the following multiple {entry_type}:\n"
-            + "\n".join(m["name"] for m in matches)
+            f"'{pattern.definition}' matched the following multiple {entry_type}:\n"
+            + "\n".join(m["name"] for m in matched)
             + "\n\n"
             + "Please provide an unambiguous pattern."
         )
-    return matches[0]
+    return matched[0]
 
 
 def to_time_entry_spec(activity, shortcuts, projects, services):

@@ -128,3 +128,83 @@ def test_activity_has_no_note():
         "service_id": None,
         "note": "",
     }
+
+
+@pytest.mark.parametrize(
+    "pattern_data, match",
+    [
+        (
+            {"project": "Backend", "client": {"pattern": "ZDF", "match": "strict"}},
+            {"name": "Rewriting Backend", "client_name": "ZDF", "id": 2},
+        ),
+        (
+            {"project": "Backend", "client": "ARD"},
+            {"name": "Rewriting Backend", "client_name": "ARD", "id": 5},
+        ),
+    ],
+)
+def test_match_client_and_project(pattern_data, match):
+    projects = [
+        {"name": "Company_Internal_2020", "client_name": None, "id": 0},
+        {"name": "OCP ED-209", "client_name": None, "id": 1},
+        {"name": "Rewriting Backend", "client_name": "ZDF", "id": 2},
+        {"name": "Rewriting Backend", "client_name": "ARD", "id": 5},
+        {"name": "ACME :: Squashing Bugs", "client_name": None, "id": 3},
+        {"name": "AT&T/Designing OS", "client_name": None, "id": 4},
+    ]
+    assert a.find_unique(projects, "projects", pattern_data) == match
+
+
+@pytest.mark.parametrize(
+    "data, pattern",
+    [
+        pytest.param(
+            "test",
+            a.Pattern(a.SubstringMatch("name", "test"), "test"),
+            id="Implicit substring match definition.",
+        ),
+        pytest.param(
+            {"pattern": "test", "match": "substring"},
+            a.Pattern(
+                a.SubstringMatch("name", "test"),
+                '{pattern = "test", match = "substring"}',
+            ),
+            id="Explicitly say match is substring.",
+        ),
+        pytest.param(
+            {"pattern": "test", "match": "strict"},
+            a.Pattern(
+                a.StrictMatch("name", "test"),
+                '{pattern = "test", match = "strict"}',
+            ),
+            id="Explicitly say match is strict.",
+        ),
+    ],
+)
+def test_parse_valid_patterns(data, pattern):
+    assert a.Pattern.parse(data) == pattern
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        pytest.param({"client": "AB"}, id="Only client key present."),
+        pytest.param({"project": {"project": "test"}}, id="Nested project key."),
+        pytest.param({"match": "strict"}, id="Pattern key is missing."),
+    ],
+)
+def test_parse_invalid_patterns(data):
+    with pytest.raises(ValueError):
+        a.Pattern.parse(data)
+
+
+def test_parse_equivalent_project_pattern():
+    """Matching logic for equivalent pattern definitions should be the same.
+
+    The definition part should preserve the difference.
+    """
+    p1 = a.Pattern.parse({"pattern": "test", "match": "strict"})
+    p2 = a.Pattern.parse({"project": {"pattern": "test", "match": "strict"}})
+
+    assert p1.matches == p2.matches
+    assert p1.definition != p2.definition
