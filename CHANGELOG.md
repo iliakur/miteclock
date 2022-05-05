@@ -1,10 +1,17 @@
 # Changelog
 
-The version numbers follow a simple scheme: `<major>.<minor>`. Increments in major
-version number signal changes that may be of interest to users. This mostly means new
-features, because we make all efforts to avoid forcing users to change their
-configuration. Once a command is added, we **never** remove it. Increments in minor
-version signal code changes that do not require any attention from users.
+Versions follow [CalVer](https://calver.org/) with a strict backwards-compatibility
+policy. The **first number** of the version is the short year (last 2 digits). The
+**second number** is incremented with each release, starting at 1 for each year.
+
+## miteclock 22.1
+
+- Support omitting the note part of an activity and leaving project or service empty, as
+  described in [#4](https://github.com/iliakur/miteclock/issues/4)
+- Support selecting projects based also on client name, as requested in
+  [#5](https://github.com/iliakur/miteclock/issues/5).
+- Switch to CalVer scheme. This way we follow an established convention that
+  communicates clearly.
 
 ## miteclock 2.3
 
