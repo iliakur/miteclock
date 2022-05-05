@@ -127,7 +127,7 @@ m start a '' ''
 ```
 
 Leaving notes empty and filling them out later is so common, that an empty note can be
-left out. We can shorten the command above to:
+completely omitted. We can shorten the command above to:
 
 ```sh
 m start a ''
