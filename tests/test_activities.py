@@ -135,22 +135,22 @@ def test_activity_has_no_note():
     [
         (
             {"project": "Backend", "client": {"pattern": "ZDF", "match": "strict"}},
-            {"name": "Rewriting Backend", "client_name": "ZDF", "id": 2},
+            {"name": "Rewriting Backend", "customer_name": "ZDF", "id": 2},
         ),
         (
             {"project": "Backend", "client": "ARD"},
-            {"name": "Rewriting Backend", "client_name": "ARD", "id": 5},
+            {"name": "Rewriting Backend", "customer_name": "ARD", "id": 5},
         ),
     ],
 )
 def test_match_client_and_project(pattern_data, match):
     projects = [
-        {"name": "Company_Internal_2020", "client_name": None, "id": 0},
-        {"name": "OCP ED-209", "client_name": None, "id": 1},
-        {"name": "Rewriting Backend", "client_name": "ZDF", "id": 2},
-        {"name": "Rewriting Backend", "client_name": "ARD", "id": 5},
-        {"name": "ACME :: Squashing Bugs", "client_name": None, "id": 3},
-        {"name": "AT&T/Designing OS", "client_name": None, "id": 4},
+        {"name": "Company_Internal_2020", "customer_name": None, "id": 0},
+        {"name": "OCP ED-209", "customer_name": None, "id": 1},
+        {"name": "Rewriting Backend", "customer_name": "ZDF", "id": 2},
+        {"name": "Rewriting Backend", "customer_name": "ARD", "id": 5},
+        {"name": "ACME :: Squashing Bugs", "customer_name": None, "id": 3},
+        {"name": "AT&T/Designing OS", "customer_name": None, "id": 4},
     ]
     assert a.find_unique(projects, "projects", pattern_data) == match
 

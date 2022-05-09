@@ -46,7 +46,7 @@ class Pattern:
                         [
                             _parse_simple(pattern_data["project"]),
                             _parse_simple(
-                                pattern_data["client"], fieldname="client_name"
+                                pattern_data["client"], fieldname="customer_name"
                             ),
                         ]
                     ),
