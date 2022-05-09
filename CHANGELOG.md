@@ -4,6 +4,10 @@ Versions follow [CalVer](https://calver.org/) with a strict backwards-compatibil
 policy. The **first number** of the version is the short year (last 2 digits). The
 **second number** is incremented with each release, starting at 1 for each year.
 
+## miteclock 22.2
+
+- Fix field name for retrieving client/customer name.
+
 ## miteclock 22.1
 
 - Support omitting the note part of an activity and leaving project or service empty, as
