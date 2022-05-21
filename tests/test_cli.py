@@ -294,6 +294,7 @@ def test_stop_running(application_context):
                 "ZDF - Rewriting Backend\n"
                 "ACME :: Squashing Bugs\n"
                 "AT&T/Designing OS\n"
+                "AT&T/Designing OS (Customer: AT&T)\n"
             ),
         ),
         (

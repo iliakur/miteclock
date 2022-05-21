@@ -1,5 +1,6 @@
 """This module knows all things mite-related."""
 from dataclasses import dataclass
+from typing import Dict, Union
 
 import backoff
 import requests
@@ -74,3 +75,11 @@ class StopWatch:
     def start(self, entry_id):
         """Start counting time for an entry specified by its ID."""
         return self._requester("patch", f"tracker/{entry_id}")
+
+
+def display_project(proj: Dict[str, Union[str, int, None, float]]) -> str:
+    return proj["name"] + (
+        f" (Customer: {proj.get('customer_name', '')})"
+        if proj.get("customer_name", "")
+        else ""
+    )

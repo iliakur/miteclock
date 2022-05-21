@@ -41,6 +41,7 @@ def projects():
         {"name": "ZDF - Rewriting Backend", "id": 2},
         {"name": "ACME :: Squashing Bugs", "id": 3},
         {"name": "AT&T/Designing OS", "id": 4},
+        {"name": "AT&T/Designing OS", "id": 5, "customer_name": "AT&T"},
     ]
 
 

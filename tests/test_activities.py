@@ -70,20 +70,44 @@ def test_find_unique(pattern, match, services):
 
 
 @pytest.mark.parametrize(
-    "pattern",
+    "pattern, error_msg",
     [
-        # These selectors are ambiguous, will match multiple services.
-        "Dev",
-        "QA",
+        # This selector is ambiguous, will match multiple services.
+        (
+            "Dev",
+            (
+                "'Dev' matched the following multiple services:\n"
+                "Development\n"
+                "Developer Training\n"
+                "DevOps\n\n"
+                "Please provide an unambiguous pattern."
+            ),
+        ),
         # This will not match any services.
-        "dev",
+        ("dev", "'dev' did not match any services.\n"),
         # This is too strict, will not match any entries exactly.
-        {"pattern": "Language", "match": "strict"},
+        (
+            {"pattern": "Language", "match": "strict"},
+            '\'{pattern = "Language", match = "strict"}\' '
+            "did not match any services.\n",
+        ),
     ],
 )
-def test_find_unique_invalid(services, pattern):
-    with pytest.raises(ValueError):
+def test_find_unique_invalid(services, pattern, error_msg):
+    with pytest.raises(ValueError) as excinfo:
         a.find_unique(services, "services", pattern)
+    assert str(excinfo.value) == error_msg
+
+
+def test_find_unique_ambiguous_project(projects):
+    with pytest.raises(ValueError) as excinfo:
+        a.find_unique(projects, "projects", "AT&T")
+    assert str(excinfo.value) == (
+        "'AT&T' matched the following multiple projects:\n"
+        "AT&T/Designing OS\n"
+        "AT&T/Designing OS (Customer: AT&T)\n\n"
+        "Please provide an unambiguous pattern."
+    )
 
 
 numbers = st.integers() | st.floats()

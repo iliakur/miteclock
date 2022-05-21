@@ -22,6 +22,8 @@ import attrs
 import tomlkit
 from tomlkit.api import inline_table
 
+from miteclock import mite
+
 
 class MatchingPredicate(ABC):
     @abstractmethod
@@ -123,7 +125,10 @@ def find_unique(entries, entry_type, pattern_data):
     if len(matched) > 1:
         raise ValueError(
             f"'{pattern.definition}' matched the following multiple {entry_type}:\n"
-            + "\n".join(m["name"] for m in matched)
+            + "\n".join(
+                mite.display_project(m) if entry_type == "projects" else m["name"]
+                for m in matched
+            )
             + "\n\n"
             + "Please provide an unambiguous pattern."
         )

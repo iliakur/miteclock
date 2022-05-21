@@ -22,6 +22,7 @@ from click_aliases import ClickAliasedGroup
 
 from miteclock import __name__, __version__
 from miteclock.activities import to_time_entry_spec
+from miteclock.mite import display_project
 from miteclock.settings import SettingsLoadError, initialize
 
 echo_error = partial(click.secho, fg="red")
@@ -208,7 +209,17 @@ def show(settings, what):
     that case you can pipe the results to a file or a search program like grep.
     """
     if what in ["projects", "services"]:
-        stuff = [item[what[:-1]]["name"] for item in settings.mite.get(what)]
+        stuff = [
+            display_project(item[what[:-1]])
+            if what == "projects"
+            else item[what[:-1]]["name"]
+            + (
+                f" (Customer: {item[what[:-1]].get('customer_name', '')})"
+                if item[what[:-1]].get("customer_name", "")
+                else ""
+            )
+            for item in settings.mite.get(what)
+        ]
     else:
         stuff = [f"{k} = {v}" for k, v in settings.shortcuts.items()]
     click.echo("\n".join(stuff))
