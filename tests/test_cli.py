@@ -457,6 +457,7 @@ def entries():
         cli.Entry(
             project_name="a",
             service_name="work",
+            customer_name="",
             note="test",
             minutes=cli.MinuteCount(7),
             created_at=datetime(2022, 1, 16, hour=9, minute=10),
@@ -464,6 +465,7 @@ def entries():
         cli.Entry(
             project_name="a",
             service_name="work",
+            customer_name="",
             note="",
             minutes=cli.MinuteCount(4),
             created_at=datetime(2022, 1, 16, hour=9, minute=5),
@@ -471,6 +473,7 @@ def entries():
         cli.Entry(
             project_name="a",
             service_name="work",
+            customer_name="ACME Inc.",
             note="test",
             minutes=cli.MinuteCount(55),
             created_at=datetime(2022, 1, 16, hour=15, minute=5),
@@ -481,8 +484,8 @@ def entries():
 @pytest.mark.parametrize(
     "full, content",
     [
-        (False, []),
-        (
+        pytest.param(False, [], id="Display no entries if not full report."),
+        pytest.param(
             True,
             [
                 cli.EmptyMessage,
@@ -497,6 +500,7 @@ def entries():
                 cli.Message(
                     (
                         "Project: a\n"
+                        "Customer: ACME Inc.\n"
                         "Service: work\n"
                         "Note: test\n"
                         "Time spent: 0h55m"
@@ -504,6 +508,7 @@ def entries():
                 ),
                 cli.EmptyMessage,
             ],
+            id="Display all entries for full report.",
         ),
     ],
 )
@@ -518,14 +523,15 @@ def test_status_untracked_entries(full, content, entries):
 @pytest.mark.parametrize(
     "full, content",
     [
-        (
+        pytest.param(
             False,
             [
                 cli.Message("Below is the entry being tracked."),
                 cli.Message("Project: a\nService: work\nNote: \nTime spent: 0h4m"),
             ],
+            id="Display only tracked entry if not full report.",
         ),
-        (
+        pytest.param(
             True,
             [
                 cli.Message("Entries today:"),
@@ -537,8 +543,15 @@ def test_status_untracked_entries(full, content, entries):
                 cli.EmptyMessage,
                 cli.Message("Project: a\nService: work\nNote: test\nTime spent: 0h7m"),
                 cli.EmptyMessage,
-                cli.Message("Project: a\nService: work\nNote: test\nTime spent: 0h55m"),
+                cli.Message(
+                    "Project: a\n"
+                    "Customer: ACME Inc.\n"
+                    "Service: work\n"
+                    "Note: test\n"
+                    "Time spent: 0h55m"
+                ),
             ],
+            id="Display all entries for full report.",
         ),
     ],
 )
@@ -547,6 +560,7 @@ def test_status_with_tracked(full, content, entries):
     entries[1] = cli.TrackedEntry(
         to_be_tracked.project_name,
         to_be_tracked.service_name,
+        to_be_tracked.customer_name,
         to_be_tracked.note,
         to_be_tracked.minutes,
         to_be_tracked.created_at,
@@ -597,6 +611,7 @@ def test_parse_mite_entry(tracking, entry_type, minutes):
     assert cli.parse_mite_entry(raw) == entry_type(
         project_name="API Docs",
         service_name="Writing",
+        customer_name="King Inc.",
         note="Rework description of authentication process",
         minutes=cli.MinuteCount(minutes),
         created_at=datetime(2015, 10, 16, 12, 39, tzinfo=timezone(timedelta(hours=2))),
@@ -609,6 +624,7 @@ def test_parse_mite_entry_missing_fields():
     ) == cli.Entry(
         project_name="",
         service_name="",
+        customer_name="",
         note="",
         minutes=cli.MinuteCount(5),
         created_at=datetime(2015, 10, 16, 12, 39, tzinfo=timezone(timedelta(hours=2))),

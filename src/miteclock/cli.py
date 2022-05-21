@@ -270,6 +270,7 @@ def status(settings, full):
 class Entry:
     project_name: str
     service_name: str
+    customer_name: str
     note: str
     minutes: MinuteCount
     created_at: datetime
@@ -278,12 +279,15 @@ class Entry:
 def _to_message(e: Entry) -> Message:
     return Message(
         "\n".join(
-            (
+            line
+            for line in (
                 f"Project: {e.project_name}",
+                f"Customer: {e.customer_name}" if e.customer_name else "",
                 f"Service: {e.service_name}",
                 f"Note: {e.note}",
                 f"Time spent: {e.minutes}",
             )
+            if line
         )
     )
 
@@ -303,6 +307,7 @@ def parse_mite_entry(raw: Dict[str, Any]) -> Entry:
     return entry_type(
         project_name=raw.get("project_name", ""),
         service_name=raw.get("service_name", ""),
+        customer_name=raw.get("customer_name", ""),
         note=raw.get("note", ""),
         minutes=MinuteCount(minutes),
         created_at=datetime.strptime(
