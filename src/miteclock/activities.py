@@ -39,14 +39,16 @@ class Pattern:
         if isinstance(pattern_data, str):
             return cls(_parse_simple(pattern_data), pattern_data)
         definition = _as_toml(pattern_data)
+        customer_fieldname = "customer"
         if "project" in pattern_data:
-            if "client" in pattern_data:
+            if customer_fieldname in pattern_data:
                 return cls(
                     And(
                         [
                             _parse_simple(pattern_data["project"]),
                             _parse_simple(
-                                pattern_data["client"], fieldname="customer_name"
+                                pattern_data[customer_fieldname],
+                                fieldname="customer_name",
                             ),
                         ]
                     ),

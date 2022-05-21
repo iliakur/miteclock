@@ -134,11 +134,11 @@ def test_activity_has_no_note():
     "pattern_data, match",
     [
         (
-            {"project": "Backend", "client": {"pattern": "ZDF", "match": "strict"}},
+            {"project": "Backend", "customer": {"pattern": "ZDF", "match": "strict"}},
             {"name": "Rewriting Backend", "customer_name": "ZDF", "id": 2},
         ),
         (
-            {"project": "Backend", "client": "ARD"},
+            {"project": "Backend", "customer": "ARD"},
             {"name": "Rewriting Backend", "customer_name": "ARD", "id": 5},
         ),
     ],
