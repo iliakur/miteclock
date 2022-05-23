@@ -69,6 +69,7 @@ In these projects you perform the following services (Dienstleistungen):
 - Regular Maintenance
 - Irregular Maintenance
 - QA
+- Backend QA
 
 From your experience with the mite webapp, you know that a time entry has the following
 three fields:
@@ -98,7 +99,6 @@ t = "Team-Internal"
 d = "Development"
 r = "Regular Maintenance"
 i = "Irregular Maintenance"
-q = "QA"
 c = "Communication/Coordination"
 ```
 
@@ -201,14 +201,75 @@ There is also `m resume` which is just an alias for `m start -l`.
 `m status` will report the current status of the tracker: whether or not the clock is
 running and for which entry, which entries have been created today.
 
-`m show` and `m list` show you a list of shortcuts. You can also request a list of
-`projects` or `services` by providing these as arguments to the command. Note that
-especially the list of projects has known to be long enough that you may want to pipe it
-to a file or filter it with `grep`.
+`m show` shows you a list of shortcuts. `m show projects` shows the projects your
+account has access to. `m show services` does the same for services. Note that the list
+of projects can be long enough that you may want to save it to a file or filter it with
+`grep`.
+
+## Advanced Activity Definitions
+
+So far we have not discussed how we match shortcuts for projects and services to the
+right entries in your mite account. Let's say we expand the shortcut
+`d = "Development"`. Based on its position we know it is a service, so we search all
+services associated with your mite account. We collect those services **that contain**
+the `"Development"` in them. If we collect exactly one service, we specify it in the
+time entry. Otherwise we have to change the shortcut definition to address one of two
+issues: either the shortcut matched multiple entries or it did not match any entries at
+all.
+
+This works fine for most cases, especially if we use the complete name of a service. It
+fails, however, for the following service from our example: `"QA"`. This is because its
+full name is contained in another service `"Backend QA"`, so we will always match both
+with a definition like `q = "QA"`.
+
+What we would like is a way to say that service names must **strictly match** the
+shortcut definition. Exactly for these cases there is another way to specify shortcut
+expansions. The form we have been using so far is actually a shorthand for the
+following:
+
+```toml
+q = {pattern = "QA", match = "substring"}
+```
+
+To switch to strict matching, we change the value of `match`:
+
+```toml
+q = {pattern = "QA", match = "strict"}
+```
+
+The process of matching projects is the same with one addition. In mite it is possible
+for projects to have the same names and different _customers_. For instance, you may be
+building a prototype for two companies, so your projects would be:
+
+- Prototype (ACME Inc.)
+- Prototype (King Inc.)
+
+In this case you could define the following shortcuts:
+
+```toml
+pa = {project = "Prototype", customer = "ACME"}
+pk = {project = "Prototype", customer = "King"}
+```
+
+If you need support for strict matches for either the project name or the customer name,
+you can use all that was mentioned above, just place it in the `project` and `customer`
+keys:
+
+```toml
+pa = {project = {pattern = "Prototype", match = "strict"}, customer = {pattern = "ACME", match = "strict"}}
+```
+
+Expanding the contents of the `project` and `customer` keys is currently not supported.
+In other words, this won't work:
+
+```toml
+a = "ACME"
+pa = {project = "Prototype", customer = "a"}
+```
 
 ## Contributing
 
-If you find a problem with the program, please don't hesitate to open an issue
+If you find a problem with the program, please open an issue
 [here](https://github.com/iliakur/miteclock/issues).
 
 If you want to submit changes, fork this repo, create a branch in your fork that
