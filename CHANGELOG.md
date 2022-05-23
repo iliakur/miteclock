@@ -4,6 +4,14 @@ Versions follow [CalVer](https://calver.org/) with a strict backwards-compatibil
 policy. The **first number** of the version is the short year (last 2 digits). The
 **second number** is incremented with each release, starting at 1 for each year.
 
+## miteclock 22.3
+
+- Rename `client` field to `customer` to be more consistent with mite terminology. This
+  breaks compatibility, for that I apologize. I hope the damage is minimal, however,
+  since the feature is new and has not been adopted yet as far as I know.
+- Include customer information in reports and error messages with projects.
+- Documentation for advanced pattern definitions.
+
 ## miteclock 22.2
 
 - Fix field name for retrieving client/customer name.
