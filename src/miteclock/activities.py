@@ -93,7 +93,7 @@ class StrictMatch(MatchingPredicate):
     pattern: str
 
     def __call__(self, entry):
-        return entry[self.fieldname] == self.pattern
+        return entry.get(self.fieldname, "") == self.pattern
 
 
 @attrs.frozen
@@ -102,7 +102,7 @@ class SubstringMatch(MatchingPredicate):
     pattern: str
 
     def __call__(self, entry):
-        return self.pattern in entry[self.fieldname]
+        return self.pattern in entry.get(self.fieldname, "")
 
 
 @attrs.frozen

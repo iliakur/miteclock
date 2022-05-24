@@ -38,18 +38,18 @@ def test_to_time_entry_spec_invalid_input(activity):
     with pytest.raises(ValueError):
         # Neither projects, nor services matter here.
         # Shortcuts are left empty to make sure nothing is expanded.
-        a.to_time_entry_spec(activity, {}, [], [])
+        a.to_time_entry_spec(activity, {}, projects=[], services=[])
 
 
 def test_to_time_entry_spec_empty_input():
     """An empty input should never happen."""
     with pytest.raises(AssertionError):
-        a.to_time_entry_spec([], {}, [], [])
+        a.to_time_entry_spec([], shortcuts={}, projects=[], services=[])
 
 
 def test_to_time_entry_spec_avoids_cycles():
     with pytest.raises(ValueError) as excinfo:
-        a.to_time_entry_spec(["a"], {"a": "b", "b": "a"}, [], [])
+        a.to_time_entry_spec(["a"], {"a": "b", "b": "a"}, projects=[], services=[])
         assert "a -> b -> a" in str(excinfo.value)
 
 
@@ -108,6 +108,18 @@ def test_find_unique_ambiguous_project(projects):
         "AT&T/Designing OS (Customer: AT&T)\n\n"
         "Please provide an unambiguous pattern."
     )
+
+
+def test_find_unique_project_with_customer():
+    """Both project and customer name must match."""
+    projects = [
+        {"name": "Test", "id": 0},
+        {"name": "Test", "customer_name": "ACME", "id": 1},
+        {"name": "Test", "customer_name": "King", "id": 2},
+    ]
+    assert a.find_unique(
+        projects, "projects", {"project": "Test", "customer": "King"}
+    ) == {"name": "Test", "customer_name": "King", "id": 2}
 
 
 numbers = st.integers() | st.floats()
