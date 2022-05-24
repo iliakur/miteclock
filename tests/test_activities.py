@@ -1,4 +1,4 @@
-import hypothesis.strategies as st
+import hypothesis.strategies as sample
 import pytest
 from hypothesis import given
 
@@ -122,26 +122,29 @@ def test_find_unique_project_with_customer():
     ) == {"name": "Test", "customer_name": "King", "id": 2}
 
 
-numbers = st.integers() | st.floats()
+numbers = sample.integers() | sample.floats()
 
 
-@given(st.lists(numbers | st.text()) | numbers | st.text())
+@given(sample.lists(numbers | sample.text()) | numbers | sample.text())
 def test_validate_shortcuts_not_dict(data):
     with pytest.raises(TypeError):
         a.validate_shortcuts(data)
 
 
 @given(
-    st.dictionaries(st.text(), st.lists(st.text(), min_size=1, max_size=3) | st.text())
+    sample.dictionaries(
+        sample.text(),
+        sample.lists(sample.text(), min_size=1, max_size=3) | sample.text(),
+    )
 )
 def test_validate_shortcuts_valid_simple_patterns(data):
     a.validate_shortcuts(data)
 
 
 @given(
-    st.dictionaries(
-        st.text(),
-        st.lists(st.text(), min_size=4) | st.just([]) | numbers,
+    sample.dictionaries(
+        sample.text(),
+        sample.lists(sample.text(), min_size=4) | sample.just([]) | numbers,
         min_size=1,  # Empty dictionary is valid, so insist here on at least one key.
     )
 )
