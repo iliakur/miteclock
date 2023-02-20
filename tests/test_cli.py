@@ -376,12 +376,12 @@ def test_missing_config_dir(tmp_path):
     If valid input is supplied, we succeed.
     """
     result = CliRunner().invoke(
-        cli.main, obj=tmp_path, input="6d12e0bf974df0e9\nhttps://abc.mite.yo.lk\n"
+        cli.main, obj=tmp_path, input="6d12e0bf974df0e9\nhttps://abc.mite.de\n"
     )
     assert result.exit_code == 0
     assert result.output == (
         "Key not found, please enter it: 6d12e0bf974df0e9\n"
-        + "Please copy/paste your mite URL: https://abc.mite.yo.lk\n"
+        + "Please copy/paste your mite URL: https://abc.mite.de\n"
         + HELP_MSG
     )
     assert (

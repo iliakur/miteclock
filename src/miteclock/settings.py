@@ -115,7 +115,7 @@ class MiteURL:
 
     @host.validator
     def mite_base_url(self, attr: attrs.Attribute, val: str):
-        if not val.endswith("mite.yo.lk"):
+        if not (val.endswith("mite.de") or val.endswith("mite.yo.lk")):
             raise ValueError("Make sure you are using a mite url.")
 
     @classmethod
@@ -223,7 +223,7 @@ def _load_valid_config(**kwargs) -> Config:
 
 def _convert_legacy(parsed: Dict) -> Config:
     account = parsed.pop("account")
-    return Config(url=f"https://{account}.mite.yo.lk", **parsed)
+    return Config(url=f"https://{account}.mite.de", **parsed)
 
 
 def _parse_toml(raw: str) -> Dict:

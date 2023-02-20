@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "miteclock"
 version = "22.3"
-description = "Clock in and out of mite.yo.lk quickly."
+description = "Clock in and out of mite.de quickly."
 authors = ["Ilia Kurenkov <ilia.kurenkov@gmail.com>"]
 license="MIT"
 readme = "README.md"
