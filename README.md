@@ -22,10 +22,10 @@ See [here](#why-yet-another-mite-cli) for more context.
 
 ## Installation and Setup
 
-This program is tested with Python versions 3.7-3.11. It doesn't have many dependencies
-so it is no big deal to install directly in your system Python environment. It's wiser
-though to install it into a dedicated virtualenv and then add a symbolic link to the
-executable somewhere in your `PATH`. An even better option is to use the
+This program is tested with Python versions 3.7-3.11. To minimize "works on my machine"
+problems, the dependencies have been pinned to specific versions. Therefore it's
+**strongly recommended** to install it in a dedicated virtualenv and then add a symbolic
+link to the executable somewhere in your `PATH`. An even better option is to use the
 [pipx](https://github.com/pipxproject/pipx) wrapper which automatically takes care of
 these two steps.
 
