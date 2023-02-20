@@ -370,18 +370,18 @@ Commands:
 """
 
 
-def test_missing_config_dir(tmp_path):
+def test_missing_config_dir(tmp_path, testing_url):
     """When config is missing we try to re-create it.
 
     If valid input is supplied, we succeed.
     """
     result = CliRunner().invoke(
-        cli.main, obj=tmp_path, input="6d12e0bf974df0e9\nhttps://abc.mite.de\n"
+        cli.main, obj=tmp_path, input=f"6d12e0bf974df0e9\n{testing_url}\n"
     )
     assert result.exit_code == 0
     assert result.output == (
         "Key not found, please enter it: 6d12e0bf974df0e9\n"
-        + "Please copy/paste your mite URL: https://abc.mite.de\n"
+        + f"Please copy/paste your mite URL: {testing_url}\n"
         + HELP_MSG
     )
     assert (

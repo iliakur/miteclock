@@ -85,28 +85,25 @@ def test_load_api_key_invalid(key, errmsg, tmp_path):
     assert str(excinfo.value) == errmsg
 
 
-def test_default_toml_content():
+def test_default_toml_content(testing_url):
     """Toml content for the default config."""
-    url = "https://abc.mite.de"
-    assert to_toml(Config(url=url)) == (
-        f'url = "{url}"\n'
+    assert to_toml(Config(url=testing_url)) == (
+        f'url = "{testing_url}"\n'
         'menu_keys = "asdfjkl;"\n\n'
         "[shortcuts] # Add your shortcuts inside this section.\n"
     )
 
 
-def test_load_config_does_not_exist(conf_path, capsys):
+def test_load_config_does_not_exist(conf_path, capsys, testing_url):
     """Handle missing config file.
 
     Prompt for mandatory information and use it to instantiate the current config type.
     """
     config = load_config(
         conf_path,
-        prompt=prompt_for_testing("https://abc.mite.de"),
+        prompt=prompt_for_testing(testing_url),
     )
-    assert config == Config(
-        url="https://abc.mite.de", menu_keys="asdfjkl;", shortcuts={}
-    )
+    assert config == Config(url=testing_url, menu_keys="asdfjkl;", shortcuts={})
     out, _ = capsys.readouterr()
     assert out == "Please copy/paste your mite URL"
 
@@ -156,10 +153,9 @@ def test_load_config_toml_parse_error(conf_path):
     )
 
 
-def test_load_valid_config(conf_path):
-    base_url = "https://abc.mite.de"
+def test_load_valid_config(conf_path, testing_url):
     conf_path.write_text(
-        f'url="{base_url}"\n'
+        f'url="{testing_url}"\n'
         'menu_keys="abc"\n\n'
         "[shortcuts]\n"
         'a="test"\nb="test2"\nc = ["a", "test3"]'
@@ -167,7 +163,7 @@ def test_load_valid_config(conf_path):
     )
     config = load_config(conf_path)
     assert config == Config(
-        base_url,
+        testing_url,
         menu_keys="abc",
         shortcuts={
             "a": "test",
@@ -178,8 +174,7 @@ def test_load_valid_config(conf_path):
     )
 
 
-def test_load_valid_legacy_config(conf_path):
-    base_url = "https://abc.mite.de"
+def test_load_valid_legacy_config(conf_path, testing_url):
     conf_path.write_text(
         'account="abc"\n'
         'menu_keys="abc"\n\n'
@@ -189,7 +184,7 @@ def test_load_valid_legacy_config(conf_path):
     )
     config = load_config(conf_path)
     assert config == Config(
-        url=base_url,
+        url=testing_url,
         menu_keys="abc",
         shortcuts={
             "a": "test",
@@ -200,7 +195,7 @@ def test_load_valid_legacy_config(conf_path):
     )
 
 
-def test_legacy_config(conf_path):
+def test_legacy_config(conf_path, testing_url):
     """When config file has legacy structure, we should still return latest version."""
     conf_path.write_text(
         "\n".join(
@@ -214,7 +209,7 @@ def test_legacy_config(conf_path):
     )
     config = load_config(conf_path)
     assert config == Config(
-        url="https://abc.mite.de",
+        url=testing_url,
         menu_keys="abc",
     )
 
@@ -222,9 +217,9 @@ def test_legacy_config(conf_path):
 @pytest.mark.parametrize(
     "url_path", ["/", "/daily", "/daily/#2021/12/26", "/#2021/12/26"]
 )
-def test_url_remove_path(url_path):
+def test_url_remove_path(url_path, testing_url):
     """If we get any kind of path added to a URL we keep only the base."""
-    base_url = "https://abc.mite.de"
+    base_url = testing_url
     assert str(Config(url=base_url + url_path).url) == base_url
 
 
@@ -235,8 +230,8 @@ def test_non_mite_url():
     assert str(excinfo.value) == "url: Make sure you are using a mite url."
 
 
-def test_no_menu_keys():
+def test_no_menu_keys(testing_url):
     """At least one menu key should be specified, otherwise we crash early."""
     with pytest.raises(ValueError) as excinfo:
-        Config(url="https://abc.mite.de", menu_keys="")
+        Config(url=testing_url, menu_keys="")
     assert str(excinfo.value) == "menu_keys: At least one key must be provided."

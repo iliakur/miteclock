@@ -3,6 +3,11 @@ import pytest
 from miteclock.activities import validate_shortcuts
 
 
+@pytest.fixture(scope="session")
+def testing_url():
+    return "https://abc.mite.de"
+
+
 @pytest.fixture
 def shortcuts():
     return validate_shortcuts(
