@@ -1,6 +1,6 @@
 # miteclock
 
-A command-line for [mite](https://mite.yo.lk/) that gets out of your way!
+A command-line for [mite](https://mite.de/) that gets out of your way!
 
 Do you track time in mite, but wish you could control the clock with a few keystrokes
 from the nearest terminal window? Then give miteclock a try!
@@ -324,7 +324,7 @@ deliberately expose a simple interface and deal only in relevant concepts.
 ## Acknowledgements
 
 This project would not have been possible at all without the folks
-[who run mite](https://mite.yo.lk/) making their API accessible. Many thanks to them for
+[who run mite](https://mite.de/) making their API accessible. Many thanks to them for
 that. I am also grateful to the people who wrote client libraries and cli tools based on
 the API. This provided context to my efforts and thus helped me define what I wanted to
 focus on.
