@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miteclock"
-version = "22.3"
+version = "23.1"
 description = "Clock in and out of mite.de quickly."
 authors = ["Ilia Kurenkov <ilia.kurenkov@gmail.com>"]
 license="MIT"
@@ -57,7 +57,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.bumpver]
-current_version = "22.3"
+current_version = "23.1"
 version_pattern = "YY.INC1"
 commit_message = "Release {new_version}"
 commit = true

@@ -4,6 +4,14 @@ Versions follow [CalVer](https://calver.org/) with a strict backwards-compatibil
 policy. The **first number** of the version is the short year (last 2 digits). The
 **second number** is incremented with each release, starting at 1 for each year.
 
+## miteclock 23.1
+
+- Update mite URL to reflect the webapp's new domain.
+- Test and document support for Pythonn 3.11.
+- Pin direct dependencies. This reduces the likelihood of bugs and problems due to
+  differences in installed packages.
+- Development changes: introduce bumpver tool to manage versions, expand test coverage.
+
 ## miteclock 22.3
 
 - Rename `client` field to `customer` to be more consistent with mite terminology. This
