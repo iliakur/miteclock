@@ -55,3 +55,15 @@ profile = "black"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.bumpver]
+current_version = "22.3"
+version_pattern = "YY.INC1"
+commit_message = "Release {new_version}"
+commit = true
+tag = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'version = "{version}"',
+]
